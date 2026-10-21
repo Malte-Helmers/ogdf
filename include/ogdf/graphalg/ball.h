@@ -1,5 +1,5 @@
 /** \file
- * \brief Declaration of a naive algorithm to calculate a p-center; ogdf::pCenter .
+ * \brief Declaration of a naive algorithm to calculate a ball; ogdf::ball .
  *
  * \author Malte Helmers
  *
@@ -41,33 +41,35 @@
 
 namespace ogdf {
 /**
- * Constructs an induced subgraph (or Ball) of a graph by defining a center node #m_u and an edge radius #m_p.
+ * Constructs a vertex induced subgraph (or Ball) of a graph by defining a center node #m_u and an edge radius #m_p.
  *
- * The p-center only consists of nodes v with dist(#m_u, v) <= #m_p .
+ * The ball only consists of nodes v with dist(#m_u, v) <= #m_p .
  *
- * The Graph without the Ball's Edges decomposes into multiple components that are put into a Component-List
+ * The original Graph without the Ball's edges decomposes into multiple components that are put into a Component-List.
+ * 
+ * If the node u is a #m_p-center the amount of vertices of each component are at most half the amount of vertices of the original graph.
  * 
  * @ingroup graph-algs
  */
-class OGDF_EXPORT pCenter {
+class OGDF_EXPORT ball {
 public :
-	//! Creates an instance of p-center without associated graph #m_G, radius #m_p or node #m_u .
-	pCenter() : m_G {nullptr}, m_p {nullptr}, m_u {nullptr} { }
+	//! Creates an instance of ball without associated graph #m_G, radius #m_p or node #m_u .
+	ball() : m_G {nullptr}, m_p {nullptr}, m_u {nullptr} { }
 
-	//! Creates an instance of p-center without radius #m_p or node #m_u .
-	pCenter( Graph& G) : m_G {&G}, m_p {nullptr}, m_u {nullptr} { }
+	//! Creates an instance of ball without radius #m_p or node #m_u .
+	ball( Graph& G) : m_G {&G}, m_p {nullptr}, m_u {nullptr} { }
 
-	//! Creates an instance of p-center without node #m_u .
-	pCenter( Graph& G,  unsigned int p) : m_G {&G}, m_p {&p}, m_u {nullptr} { }
+	//! Creates an instance of ball without node #m_u .
+	ball( Graph& G,  unsigned int p) : m_G {&G}, m_p {&p}, m_u {nullptr} { }
 	/*, pValid {this->hasValidU()}*/
 
-	//! Creates an instance of p-center.
-	pCenter( Graph& G,  unsigned int p, node& u) : m_G {&G}, m_p {&p}, m_u {u} {
+	//! Creates an instance of ball.
+	ball( Graph& G,  unsigned int p, node& u) : m_G {&G}, m_p {&p}, m_u {u} {
 	}
 
 
 	//! Destructor.
-	~pCenter() = default;
+	~ball() = default;
 
 
 
@@ -82,9 +84,9 @@ public :
 	//! Tries to find a node #m_u such that the size of any Components connected by edges outside of the Ball is <= 0.5 * |V|.
 	//! If successful, sets #m_u, #m_b and #m_c to the corresponding findings and returns true.
 	//! If unsuccessful, it returns false.
-	bool hasValidU() ;
+	bool hasPCenter() ;
 
-	//! Checks if the given node creates p_center such that the size of any Components connected by edges outside of the Ball is <= 0.5 * |V|.
+	//! Checks if the given node is a p_center such that the size of any Components connected by edges outside of the Ball is <= 0.5 * |V|.
 	//! If successful, sets #m_u, #m_b and #m_c to the corresponding findings and returns true.
 	//! If unsuccessful, it returns false.
 	//bool checkU(node* u) ;

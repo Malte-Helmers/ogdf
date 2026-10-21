@@ -38,7 +38,7 @@
 //#include <ogdf/graphalg/minStretchSpanningTreeEmekPeleg.h>
 //#include <ogdf/graphalg/minStretchSpanningTreeMCF.h>
 //#include <ogdf/graphalg/minStretchSpanningTreeModule.h>
-#include <ogdf/graphalg/pCenter.h>
+//#include <ogdf/graphalg/ball.h>
 #include <ogdf/graphalg/ShortestPathAlgorithms.h>
 
 #include <iostream>
@@ -48,7 +48,7 @@ using namespace ogdf;
 
 int main() {
 	Graph G;
-	bool Success = GraphIO::read(G, "K_5.gml");
+	bool Success = GraphIO::read(G, "emek_peleg_example.gml");
 	if (!Success) {
 		std::cerr << "Could not load K_5.gml" << std::endl;
 		return 1;

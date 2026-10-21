@@ -1,0 +1,131 @@
+<?xml version="1.0"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events" version="1.1" baseProfile="full" viewBox="13.5 13.5 141 140">
+	<g>
+		<g>
+			<path fill="none" d=" M64,17 L77,34" stroke="#000000" />
+		</g>
+		<g>
+			<path fill="none" d=" M64,17 L64,38" stroke="#000000" />
+		</g>
+		<g>
+			<path fill="none" d=" M77,34 L77,56" stroke="#000000" />
+		</g>
+		<g>
+			<path fill="none" d=" M64,38 L77,56" stroke="#000000" />
+		</g>
+		<g>
+			<path fill="none" d=" M77,56 L65,78" stroke="#000000" />
+		</g>
+		<g>
+			<path fill="none" d=" M77,56 L98,70" stroke="#000000" />
+		</g>
+		<g>
+			<path fill="none" d=" M65,78 L61,102" stroke="#000000" />
+		</g>
+		<g>
+			<path fill="none" d=" M65,78 L83,81" stroke="#000000" />
+		</g>
+		<g>
+			<path fill="none" d=" M61,102 L45,121" stroke="#000000" />
+		</g>
+		<g>
+			<path fill="none" d=" M61,102 L86,100" stroke="#000000" />
+		</g>
+		<g>
+			<path fill="none" d=" M45,121 L35,140" stroke="#000000" />
+		</g>
+		<g>
+			<path fill="none" d=" M45,121 L25,130" stroke="#000000" />
+		</g>
+		<g>
+			<path fill="none" d=" M35,140 L17,150" stroke="#000000" />
+		</g>
+		<g>
+			<path fill="none" d=" M17,150 L25,130" stroke="#000000" />
+		</g>
+		<g>
+			<path fill="none" d=" M83,81 L98,70" stroke="#000000" />
+		</g>
+		<g>
+			<path fill="none" d=" M83,81 L86,100" stroke="#000000" />
+		</g>
+		<g>
+			<path fill="none" d=" M98,70 L108,90" stroke="#000000" />
+		</g>
+		<g>
+			<path fill="none" d=" M98,70 L120,73" stroke="#000000" />
+		</g>
+		<g>
+			<path fill="none" d=" M86,100 L108,90" stroke="#000000" />
+		</g>
+		<g>
+			<path fill="none" d=" M108,90 L120,73" stroke="#000000" />
+		</g>
+		<g>
+			<path fill="none" d=" M108,90 L130,97" stroke="#000000" />
+		</g>
+		<g>
+			<path fill="none" d=" M120,73 L143,75" stroke="#000000" />
+		</g>
+		<g>
+			<path fill="none" d=" M143,75 L151,94" stroke="#000000" />
+		</g>
+		<g>
+			<path fill="none" d=" M130,97 L151,94" stroke="#000000" />
+		</g>
+	</g>
+	<g>
+		<rect x="61.5" y="14.5" width="5" height="5" />
+	</g>
+	<g>
+		<rect x="74.5" y="31.5" width="5" height="5" />
+	</g>
+	<g>
+		<rect x="61.5" y="35.5" width="5" height="5" />
+	</g>
+	<g>
+		<rect x="74.5" y="53.5" width="5" height="5" />
+	</g>
+	<g>
+		<rect x="62.5" y="75.5" width="5" height="5" />
+	</g>
+	<g>
+		<rect x="58.5" y="99.5" width="5" height="5" />
+	</g>
+	<g>
+		<rect x="42.5" y="118.5" width="5" height="5" />
+	</g>
+	<g>
+		<rect x="32.5" y="137.5" width="5" height="5" />
+	</g>
+	<g>
+		<rect x="14.5" y="147.5" width="5" height="5" />
+	</g>
+	<g>
+		<rect x="22.5" y="127.5" width="5" height="5" />
+	</g>
+	<g>
+		<rect x="80.5" y="78.5" width="5" height="5" />
+	</g>
+	<g>
+		<rect x="95.5" y="67.5" width="5" height="5" />
+	</g>
+	<g>
+		<rect x="83.5" y="97.5" width="5" height="5" />
+	</g>
+	<g>
+		<rect x="105.5" y="87.5" width="5" height="5" />
+	</g>
+	<g>
+		<rect x="117.5" y="70.5" width="5" height="5" />
+	</g>
+	<g>
+		<rect x="140.5" y="72.5" width="5" height="5" />
+	</g>
+	<g>
+		<rect x="127.5" y="94.5" width="5" height="5" />
+	</g>
+	<g>
+		<rect x="148.5" y="91.5" width="5" height="5" />
+	</g>
+</svg>

@@ -1,5 +1,5 @@
 /** \file
- * \brief Implementation of a naive algorithm to calculate a p-center; ogdf::pCenter .
+ * \brief Implementation of a naive algorithm to calculate a ball; ogdf::ball .
  *
  * \author Malte Helmers
  *
@@ -34,7 +34,7 @@
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/basic.h>
 #include <ogdf/graphalg/ShortestPathAlgorithms.h>
-#include <ogdf/graphalg/pCenter.h>
+#include <ogdf/graphalg/ball.h>
 
 #include <algorithm>
 #include <functional>
@@ -43,15 +43,15 @@
 
 namespace ogdf {
 /*
-bool pCenter::checkU(node* v)  {
+bool ball::checkU(node* v)  {
 	OGDF_ASSERT(m_G != nullptr);
 	
 	Graph* Ball;
 	List<Graph*>* Components;
 	bool valid;
 
-		Graph* Ball = pCenter::createBall(v);
-		List<Graph*>* Components = pCenter::scanComponents(Ball);
+		Graph* Ball = ball::createBall(v);
+		List<Graph*>* Components = ball::scanComponents(Ball);
 		valid = true;
 		for (Graph* c : Components->getListPure()) {
 			if (c->numberOfNodes() > (m_G->numberOfNodes() / 2)) {
@@ -68,7 +68,7 @@ bool pCenter::checkU(node* v)  {
 	return false;
 }
 */
-bool pCenter::hasValidU()  {
+bool ball::hasPCenter()  {
 	OGDF_ASSERT(m_G != nullptr);
 
 	Graph* Ball;
@@ -77,8 +77,8 @@ bool pCenter::hasValidU()  {
 	for (node v : m_G->nodes) {
 
 		//wip: maybe move to checkU() and replace with call
-		Ball = pCenter::createBall(&v);
-		Components = pCenter::scanComponents(Ball);
+		Ball = ball::createBall(&v);
+		Components = ball::scanComponents(Ball);
 		valid = true;
 		for (Graph* c : Components->getListPure()) {
 			if (c->numberOfNodes() > (m_G->numberOfNodes() / 2)) {
@@ -96,7 +96,7 @@ bool pCenter::hasValidU()  {
 	return false;
 }
 /*
-void pCenter::constructDistMatrix() {
+void ball::constructDistMatrix() {
 	NodeArray<NodeArray<int>> distance(*m_G);
 	for (node v : m_G->nodes) {
 		distance[v].init(*m_G);
@@ -108,7 +108,7 @@ void pCenter::constructDistMatrix() {
 }
 */
 
- Graph* pCenter::createBall(node* u)  { 
+ Graph* ball::createBall(node* u)  { 
 	OGDF_ASSERT(this->m_G != nullptr);
 	OGDF_ASSERT(this->m_p != nullptr);
 	OGDF_ASSERT(this->m_u != nullptr);
@@ -123,7 +123,7 @@ void pCenter::constructDistMatrix() {
 }
 
 
-List<Graph*>* pCenter::scanComponents(Graph* b)  { 
+List<Graph*>* ball::scanComponents(Graph* b)  { 
 	OGDF_ASSERT(m_G != nullptr);
 	OGDF_ASSERT(m_b != nullptr);
 	return 0; 

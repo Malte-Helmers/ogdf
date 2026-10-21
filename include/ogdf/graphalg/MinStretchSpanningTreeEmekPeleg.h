@@ -35,6 +35,7 @@
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/basic.h>
 //#include <ogdf/graphalg/pCenter.h>
+#include <ogdf/graphalg/SpannerModule.h>
 
 #include <functional>
 #include <utility>
@@ -49,7 +50,8 @@ namespace ogdf {
  *
  * @ingroup graph-algs
  */
-class OGDF_EXPORT MinimumStretchSpanningTreeEmekPeleg {
+template<typename TWeight>
+class MinimumStretchSpanningTreeEmekPeleg : public SpannerModule<TWeight> {
 public:
 	//! Creates an instance of Min-Stretch Spanning Tree without associated graph.
 	MinimumStretchSpanningTreeEmekPeleg() : m_G {nullptr} { }
@@ -61,7 +63,7 @@ public:
 	~MinimumStretchSpanningTreeEmekPeleg() = default;
 
 	//! Constructs a min stretch spanning tree for the graph #m_G,
-	//! Essentially turns the optimization problem into a decision problem
+	//! Essentially solves the optimization problem by doing a binary search on an algortihm that solves the decision problem.
 	//! Should only fail if graph is invalid.
 	Graph constructMSST();
 
@@ -77,11 +79,10 @@ public:
 protected:
 
 	//! Recursive function that tries to construct an MSST for a given p := 2 * stretch
-	//! Fails if given p is smaller than twice the graph's #m_G stretch
-	void constructTree(Graph G, unsigned int p);
+	//! Can fail if the given p is smaller than twice the graph's #m_G stretch
+	bool constructTree(Graph G, unsigned int p);
 
 	//! Recursive function that tries to construct an MSST for a given p := 2 * stretch
-	//! Fails if given p is smaller than twice the graph's #m_G stretch
 	EdgeSet constructLocalTree(Graph G, unsigned int p) const;
 
 	//! Returns an edgeless spanning forest of #m_G .

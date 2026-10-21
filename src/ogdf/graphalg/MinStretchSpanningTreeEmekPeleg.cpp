@@ -31,6 +31,7 @@
 
 //#include <ogdf/graphalg/minStretchSpanningTreeEmekPeleg.h>
 //#include <ogdf/graphalg/minStretchSpanningTreeModule.h>
+#include <ogdf/graphalg/ShortestPathAlgorithms.h>
 
 namespace ogdf {
 

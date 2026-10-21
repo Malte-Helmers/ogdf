@@ -156,6 +156,11 @@
  * @ingroup graph-algs
  * \brief Algorithms for computing graph spanners.
  *
+ * @defgroup ga-treespanner Tree-Spanner Algorithms
+ * @ingroup graph-algs
+ * @ingroup ga-spanner
+ * \brief Algorithms for computing graph spanners.
+ *
  * @defgroup ga-planarity Planarity and Planarization
  * @ingroup graph-algs
  * \brief Provides algorithms dealing with planarity of graphs.
