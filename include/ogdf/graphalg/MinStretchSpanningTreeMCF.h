@@ -31,15 +31,18 @@
 
 #pragma once
 
-//
-// TO DO: INSERT YOUR INCLUDES
-//
+#include <ogdf/graphalg/TreeSpannerModule.h>
 
 namespace ogdf {
-
-//
-// TO DO: INSERT YOUR DECLARATIONS
-// Do not indent because of namespace block.
-//
-
+/**
+ * Calculates a spanning tree of a graph that has an optimal maximum stretch.
+ *
+ * Given a graph and its max distance maxDist, a k-Stretch Spanning
+ * Tree is a Spanning Tree that has a max distance of k * maxDist.
+ *
+ * @ingroup ga-treespanner
+ */
+template<typename TWeight>
+class MinimumStretchSpanningTreeMCF : public TreeSpannerModule<TWeight> {
+};
 }

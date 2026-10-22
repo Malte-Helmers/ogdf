@@ -34,8 +34,8 @@
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/basic.h>
-//#include <ogdf/graphalg/pCenter.h>
-#include <ogdf/graphalg/SpannerModule.h>
+//#include <ogdf/graphalg/ball.h>
+#include <ogdf/graphalg/TreeSpannerModule.h>
 
 #include <functional>
 #include <utility>
@@ -48,10 +48,10 @@ namespace ogdf {
  * Given a graph and its max distance maxDist, a k-Stretch Spanning
  * Tree is a Spanning Tree that has a max distance of k * maxDist.
  *
- * @ingroup graph-algs
+ * @ingroup ga-treespanner
  */
 template<typename TWeight>
-class MinimumStretchSpanningTreeEmekPeleg : public SpannerModule<TWeight> {
+class MinimumStretchSpanningTreeEmekPeleg : public TreeSpannerModule<TWeight> {
 public:
 	//! Creates an instance of Min-Stretch Spanning Tree without associated graph.
 	MinimumStretchSpanningTreeEmekPeleg() : m_G {nullptr} { }

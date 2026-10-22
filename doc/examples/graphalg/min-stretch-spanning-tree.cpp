@@ -46,11 +46,16 @@
 
 using namespace ogdf;
 
-int main() {
+//Input .gml of Graph.
+int main(int argc, char *argv[]) {
+	string inputGraph = "emek_peleg_example.gml";
+	if (argc > 1) {
+		inputGraph = argv[1];
+	}
 	Graph G;
-	bool Success = GraphIO::read(G, "emek_peleg_example.gml");
+	bool Success = GraphIO::read(G, inputGraph);
 	if (!Success) {
-		std::cerr << "Could not load K_5.gml" << std::endl;
+		std::cerr << "Could not load given .gml" << std::endl;
 		return 1;
 	}
 
