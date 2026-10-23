@@ -1,5 +1,7 @@
 /** \file
- * \brief Declaration and Implementation of common Minimum Stretch Spanning Tree Functions.
+ * \brief basic module for treespanner modules
+ * 
+ * heavily derived from ogdf::spannerModule.
  *
  * \author Malte Helmers
  *
@@ -40,31 +42,28 @@
 #include <ogdf/basic/Stopwatch.h>
 #include <ogdf/basic/basic.h>
 #include <ogdf/graphalg/ShortestPathAlgorithms.h>
-#include <ogdf/graphalg/SpannerModule.h>
 
 #include <cstdint>
 #include <string>
-
 
 namespace ogdf {
 /**
  * \brief Interface for tree-spanner algorithms.
  *
  * All tree-spanner implementations must:
- * - implement SpannerModule::execute and SpannerModule::preconditionsOk
- * - be timelimited: Call SpannerModule::assertTimeLeft e.g. in the main loop
- * - create a spanner (m_spanner) and a set of used edges regarding the original graph (m_inSpanner)
+ * - implement TreeSpannerModule::execute and TreeSpannerModule::preconditionsOk
+ * - be timelimited: Call TreeSpannerModule::assertTimeLeft e.g. in the main loop
+ * - create a tree-spanner (m_treeSpanner) and a set of the n-1 used edges regarding the original graph (m_inTreeSpanner)
  *
  * @ingroup ga-treespanner
  */
-template<typename TWeight>
-class TreeSpannerModule : public SpannerModule<TWeight> {
+class TreeSpannerModule : public Module {
 public:
-	//! Initializes a spanner module.
-	SpannerModule() : m_GA(nullptr) { }
+	//! Initializes a tree-spanner module.
+	TreeSpannerModule() : m_GA(nullptr) { }
 
 	// destruction
-	virtual ~SpannerModule() { }
+	virtual ~TreeSpannerModule() { }
 
 	/**
 	 * \brief Executes the algorithm.
@@ -72,27 +71,24 @@ public:
 	 * Example:
 	 * \code
 	 * GraphAttributes GA = ....
-	 * int stretch = 2;
-	 * GraphCopySimple spanner;
-	 * EdgeArray<bool> inSpanner;
-	 * std::unique_ptr<SpannerModule<int>> sm = std::make_unique<BaswanaSenClusterSpanner<int>>();
-	 * typename SpannerModule<int>::Result result = sm->call(GA, stretch, spanner, inSpanner);
+	 * GraphCopySimple treeSpanner;
+	 * EdgeArray<bool> inTreeSpanner;
+	 * std::unique_ptr<TreeSpannerModule> sm = std::make_unique<MinStretchSpanningTreeEmekPeleg>();
+	 * typename TreeSpannerModule::Result result = sm->call(GA, treeSpanner, inTreeSpanner);
 	 * \endcode
 	 *
-	 * @tparam TWeight the type of weights to get from \p GA
 	 *
 	 * @param GA The graph used. GraphAttributes can be used to pass in weights
-	 * @param stretch The multiplicative shortest-path-length factor
-	 * @param spanner The resulting spanner. Must be a copy of GA.constGraph()
-	 * @param inSpanner Maps true to an edge iff the edge is in the spanner
-	 * @return The state in which the algorithm returns. Only for OK the spanner is valid.
+	 * @param treeSpanner The resulting tree-spanner. Must be a copy of GA.constGraph()
+	 * @param inTreeSpanner Maps true to an edge if the edge is in the treeSpanner
+	 * @return The state in which the algorithm returns. Only for OK the treeSpanner is valid.
 	 */
-	virtual ReturnType call(const GraphAttributes& GA, double stretch, GraphCopySimple& spanner,
-			EdgeArray<bool>& inSpanner) {
-		init(GA, stretch, spanner, inSpanner);
+	virtual ReturnType call(const GraphAttributes& GA, GraphCopySimple& treeSpanner,
+			EdgeArray<bool>& inTreeSpanner) {
+		init(GA, treeSpanner, inTreeSpanner);
 #ifdef OGDF_DEBUG
 		std::string error;
-		OGDF_ASSERT(preconditionsOk(GA, stretch, error));
+		OGDF_ASSERT(preconditionsOk(GA, error));
 #endif
 
 		if (isTimelimitEnabled()) {
@@ -111,10 +107,10 @@ public:
 	}
 
 	/**
-	 * @returns true, if the given \p GA and \p stretch are valid for a specific algorithm. If not,
+	 * @returns true, if the given \p GA is valid for a specific algorithm. If not,
 	 * an error message is provided via \p error
 	 */
-	virtual bool preconditionsOk(const GraphAttributes& GA, double stretch, std::string& error) = 0;
+	virtual bool preconditionsOk(const GraphAttributes& GA, std::string& error) = 0;
 
 	/**
 	 * Sets the timelimit for the algorithm in milliseconds. Use -1 to disable the timelimit.
@@ -130,27 +126,26 @@ public:
 
 protected:
 	const GraphAttributes* m_GA;
-	double m_stretch;
-	GraphCopySimple* m_spanner;
-	EdgeArray<bool>* m_inSpanner;
+	int m_stretch;
+	GraphCopySimple* m_treeSpanner;
+	EdgeArray<bool>* m_inTreeSpanner;
 
 	/**
-	 * Initializes members and create an empty spanner.
+	 * Initializes members and create an empty tree-spanner.
 	 */
-	virtual void init(const GraphAttributes& GA, double stretch, GraphCopySimple& spanner,
-			EdgeArray<bool>& inSpanner) {
+	virtual void init(const GraphAttributes& GA, GraphCopySimple& treeSpanner,
+			EdgeArray<bool>& inTreeSpanner) {
 		m_GA = &GA;
-		m_stretch = stretch;
-		m_spanner = &spanner;
-		m_inSpanner = &inSpanner;
+		m_treeSpanner = &treeSpanner;
+		m_inTreeSpanner = &inTreeSpanner;
 
 		const Graph& G = GA.constGraph();
-		m_spanner->clear();
-		m_spanner->setOriginalGraph(G);
+		m_treeSpanner->clear();
+		m_treeSpanner->setOriginalGraph(G);
 		for (node n : G.nodes) {
-			m_spanner->newNode(n);
+			m_treeSpanner->newNode(n);
 		}
-		m_inSpanner->init(G, false);
+		m_inTreeSpanner->init(G, false);
 	}
 
 	/**
@@ -171,7 +166,7 @@ protected:
 
 	/**
 	 * Assert, that time is left. If there is no time left (and the timelimit is active),
-	 * an exception will be thwron to abort the execution.
+	 * an exception will be thrown to abort the execution.
 	 */
 	void assertTimeLeft() {
 		if (isTimelimitEnabled() && getTimeLeft() <= 0) {
@@ -189,86 +184,62 @@ protected:
 
 public:
 	/**
-	 * Validates a spanner
+	 * Validates a tree-spanner
 	 *
-	 * \returns true iff the \p spanner is a k-multiplicative spanner of \p GA
+	 * \returns true if the \p treeSpanner is a k-multiplicative tree-spanner of \p GA
 	 */
-	static bool isMultiplicativeSpanner(const GraphAttributes& GA, const GraphCopySimple& spanner,
-			double stretch);
+	static bool isMultiplicativeTreeSpanner(const GraphAttributes& GA, const GraphCopySimple& treeSpanner,
+			int stretch);
 
 	/**
-	 * Calculates an all-pair shortest-path on \p spanner with the weights given by \p GA
+	 * Calculates an all-pair shortest-path on \p treeSpanner
 	 */
-	static void apspSpanner(const GraphAttributes& GA, const GraphCopySimple& spanner,
-			NodeArray<NodeArray<TWeight>>& shortestPathMatrix);
+	static void apspTreeSpanner(const GraphCopySimple& treeSpanner,
+			NodeArray<NodeArray<int>>& shortestPathMatrix);
 
-protected:
-	/**
-	 * \returns the weight of an edge \p e from \p GA
-	 */
-	static TWeight getWeight(const GraphAttributes& GA, edge e);
+
 };
 
-template<typename TWeight>
-void SpannerModule<TWeight>::apspSpanner(const GraphAttributes& GA, const GraphCopySimple& spanner,
-		NodeArray<NodeArray<TWeight>>& shortestPathMatrix) {
-	EdgeArray<TWeight> weights(spanner);
-	for (edge e : spanner.edges) {
-		weights[e] = getWeight(GA, spanner.original(e));
+void TreeSpannerModule::apspTreeSpanner(const GraphCopySimple& treeSpanner,
+		NodeArray<NodeArray<int>>& shortestPathMatrix) {
+	EdgeArray<int> weights(treeSpanner);
+	for (edge e : treeSpanner.edges) {
+		weights[e] = 1;
 	}
-	dijkstra_SPAP(spanner, shortestPathMatrix, weights);
+	dijkstra_SPAP(treeSpanner, shortestPathMatrix, weights);
 }
 
-template<typename TWeight>
-bool SpannerModule<TWeight>::isMultiplicativeSpanner(const GraphAttributes& GA,
-		const GraphCopySimple& spanner, double stretch) {
+bool TreeSpannerModule::isMultiplicativeTreeSpanner(const GraphAttributes& GA,
+		const GraphCopySimple& treeSpanner, int stretch) {
 	const Graph& G = GA.constGraph();
-	OGDF_ASSERT(&(spanner.original()) == &G);
+	OGDF_ASSERT(&(treeSpanner.original()) == &G);
 
-	if (G.numberOfNodes() != spanner.numberOfNodes()) {
+	if (G.numberOfNodes() != treeSpanner.numberOfNodes() || treeSpanner.numberOfEdges() != G.numberOfNodes() - 1 ) {
 		return false;
 	}
 
-	NodeArray<NodeArray<TWeight>> originalDistances(G);
-	EdgeArray<TWeight> weights(G);
+	NodeArray<NodeArray<int>> originalDistances(G);
+	EdgeArray<int> weights(G);
 	for (edge e : G.edges) {
-		weights[e] = getWeight(GA, e);
+		weights[e] = 1;
 	}
 	dijkstra_SPAP(G, originalDistances, weights);
 
-	NodeArray<NodeArray<TWeight>> newDistances(spanner);
-	apspSpanner(GA, spanner, newDistances);
+	NodeArray<NodeArray<int>> newDistances(treeSpanner);
+	apspTreeSpanner(treeSpanner, newDistances);
 
 	EpsilonTest m_eps;
 	for (edge e : G.edges) {
 		node u = e->source();
 		node v = e->target();
-		TWeight originalDistance = originalDistances[u][v];
-		TWeight newDistance = newDistances[spanner.copy(u)][spanner.copy(v)];
-		if (m_eps.greater(static_cast<double>(newDistance), stretch * originalDistance)) {
+		int originalDistance = originalDistances[u][v];
+		int newDistance = newDistances[treeSpanner.copy(u)][treeSpanner.copy(v)];
+		if (m_eps.greater(static_cast<double>(newDistance), static_cast<double>(stretch * originalDistance))) {
 			return false;
 		}
 	}
 
 	return true;
-}
-
-template<>
-inline int SpannerModule<int>::getWeight(const GraphAttributes& GA, edge e) {
-	if (GA.has(GraphAttributes::edgeIntWeight)) {
-		return GA.intWeight(e);
-	} else {
-		return 1;
-	}
-}
-
-template<>
-inline double SpannerModule<double>::getWeight(const GraphAttributes& GA, edge e) {
-	if (GA.has(GraphAttributes::edgeDoubleWeight)) {
-		return GA.doubleWeight(e);
-	} else {
-		return 1.0;
-	}
 }
 
 }

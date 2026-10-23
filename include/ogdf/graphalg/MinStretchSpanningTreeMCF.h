@@ -42,7 +42,18 @@ namespace ogdf {
  *
  * @ingroup ga-treespanner
  */
-template<typename TWeight>
-class MinimumStretchSpanningTreeMCF : public TreeSpannerModule<TWeight> {
+class OGDF_EXPORT MinStretchSpanningTreeMCF : public TreeSpannerModule {
+public:
+
+	//! @copydoc ogdf::TreeSpannerModule::preconditionsOk
+	virtual bool preconditionsOk(const GraphAttributes& GA, std::string& error) ;
+
+
+protected:
+
+    TreeSpannerModule::ReturnType execute() ;
+
+    void init(const GraphAttributes& GA, GraphCopySimple& treeSpanner,
+			EdgeArray<bool>& inTreeSpanner) ;
 };
 }

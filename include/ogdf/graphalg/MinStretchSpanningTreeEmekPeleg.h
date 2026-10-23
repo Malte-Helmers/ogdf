@@ -50,37 +50,36 @@ namespace ogdf {
  *
  * @ingroup ga-treespanner
  */
-template<typename TWeight>
-class MinimumStretchSpanningTreeEmekPeleg : public TreeSpannerModule<TWeight> {
+class OGDF_EXPORT MinStretchSpanningTreeEmekPeleg : public TreeSpannerModule {
 public:
-	//! Creates an instance of Min-Stretch Spanning Tree without associated graph.
-	MinimumStretchSpanningTreeEmekPeleg() : m_G {nullptr} { }
 
-	//! Creates an instance of Min-Stretch Spanning Tree and sets the graph.
-	MinimumStretchSpanningTreeEmekPeleg(const Graph& G) : m_G {&G} { }
-
-	//! Destructor.
-	~MinimumStretchSpanningTreeEmekPeleg() = default;
+	//! @copydoc ogdf::TreeSpannerModule::preconditionsOk
+	virtual bool preconditionsOk(const GraphAttributes& GA, std::string& error) ;
 
 	//! Constructs a min stretch spanning tree for the graph #m_G,
 	//! Essentially solves the optimization problem by doing a binary search on an algortihm that solves the decision problem.
 	//! Should only fail if graph is invalid.
-	Graph constructMSST();
+	void constructMSST();
 
 	//! Returns a pointer to the associated graph.
-	const Graph* getGraph() const { return m_G; }
+	const GraphCopySimple* getGraph() const { return (&m_G); }
 
 	//! Sets the associated graph.
-	void setGraph(const Graph& G) {
+	void setGraph(GraphCopySimple& G) {
 		OGDF_ASSERT(!G.empty());
-		m_G = &G;
+		m_G = G;
 	}
 
 protected:
 
+	TreeSpannerModule::ReturnType execute() ;
+
+	void init(const GraphAttributes& GA, GraphCopySimple& treeSpanner,
+			EdgeArray<bool>& inTreeSpanner) ;
+
 	//! Recursive function that tries to construct an MSST for a given p := 2 * stretch
 	//! Can fail if the given p is smaller than twice the graph's #m_G stretch
-	bool constructTree(Graph G, unsigned int p);
+	bool constructTree(GraphCopySimple G, unsigned int p);
 
 	//! Recursive function that tries to construct an MSST for a given p := 2 * stretch
 	EdgeSet constructLocalTree(Graph G, unsigned int p) const;
@@ -88,9 +87,16 @@ protected:
 	//! Returns an edgeless spanning forest of #m_G .
 	Graph newForest() const;
 
+	using TreeSpannerModule::assertTimeLeft;
+	using TreeSpannerModule::m_GA;
+	using TreeSpannerModule::m_stretch;
+	using TreeSpannerModule::m_treeSpanner;
+	using TreeSpannerModule::m_inTreeSpanner;
 private:
-	const Graph* m_G; //!< The associated graph.
+	GraphCopySimple m_G; //!< The copy of GA.constGraph() to work on.
 	Graph m_F; //!< The Solution; Starts off as edgeless spanning forest of #m_g.
+
+	EpsilonTest m_eps;
 
 };
 

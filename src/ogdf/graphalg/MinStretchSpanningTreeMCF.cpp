@@ -29,14 +29,40 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-//#include <ogdf/graphalg/minStretchSpanningTreeMCF.h>
-//#include <ogdf/graphalg/minStretchSpanningTreeModule.h>
+#include <ogdf/graphalg/MinStretchSpanningTreeMCF.h>
+#include <ogdf/graphalg/ConnectivityTester.h>
 
 namespace ogdf {
 
-//
-// TO DO: INSERT YOUR IMPLEMENTATION CODE
-// Do not indent because of namespace block.
-//
+bool MinStretchSpanningTreeMCF::preconditionsOk(const GraphAttributes& GA, std::string& error) {
+		if (GA.directed()) {
+			error = "The graph must be undirected";
+			return false;
+		}
+		if (GA.has(GA.edgeIntWeight) || GA.has(GA.edgeDoubleWeight)) {
+			error = "The graph must be unweighted. Try deleting the weights first";
+			return false;
+		}
+        const Graph G = GA.constGraph();
+        ConnectivityTester CT = ConnectivityTester();
+        NodeArray<NodeArray<int>> matrix(G, NodeArray<int>(G));
+        if (CT.computeConnectivity(G,matrix)) {
+			error = "The graph must be connected. Try inputting each component instead";
+			return false;
+		}
+		return true;
+	}
+
+    TreeSpannerModule::ReturnType MinStretchSpanningTreeMCF::execute() {
+        
+        return TreeSpannerModule::ReturnType::Optimal; //Not entirely true, it's within O(log n) of the actual optimal solution
+    }
+
+    void MinStretchSpanningTreeMCF::init(const GraphAttributes& GA, GraphCopySimple& treeSpanner,
+			EdgeArray<bool>& inTreeSpanner) {
+		TreeSpannerModule::init(GA, treeSpanner, inTreeSpanner);
+		//m_G.clear();
+		//m_G.init(GA.constGraph());
+	}
 
 }

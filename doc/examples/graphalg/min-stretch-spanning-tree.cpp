@@ -37,7 +37,7 @@
 #include <ogdf/fileformats/GraphIO.h>
 //#include <ogdf/graphalg/minStretchSpanningTreeEmekPeleg.h>
 //#include <ogdf/graphalg/minStretchSpanningTreeMCF.h>
-//#include <ogdf/graphalg/minStretchSpanningTreeModule.h>
+//#include <ogdf/graphalg/TreeSpannerModule.h>
 //#include <ogdf/graphalg/ball.h>
 #include <ogdf/graphalg/ShortestPathAlgorithms.h>
 
@@ -46,8 +46,9 @@
 
 using namespace ogdf;
 
-//Input .gml of Graph.
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) { //Input: .gml of Graph.
+
+	// Parsing argv and intializing G
 	string inputGraph = "emek_peleg_example.gml";
 	if (argc > 1) {
 		inputGraph = argv[1];
@@ -58,12 +59,17 @@ int main(int argc, char *argv[]) {
 		std::cerr << "Could not load given .gml" << std::endl;
 		return 1;
 	}
+	// End of Input Parsing
 
+	// Initialize GA and set as undirected
 	GraphAttributes GA(G);
 	GA.directed() = false;
 	const Graph Gc = GA.constGraph();
+	// End of GA Initialization
 
-	//Preprocess shortest distances between all node pairs using bfs. wip: find optimal search
+
+	// Preprocess shortest distances between all node pairs using bfs: Runtime O(n²m) 
+	// To do: optimize runtime
 	NodeArray<NodeArray<int>> distance(Gc);
 	for (node v : Gc.nodes) {
 		distance[v].init(Gc);
@@ -78,9 +84,10 @@ int main(int argc, char *argv[]) {
 		}
 		std::cout << std::endl;
 	}
-	//end of preprocessing
+	// End of SPAP preprocessing
 
 
+	// Drawing GA
 	for (node v : G.nodes) {
 		GA.width(v) = GA.height(v) = 5.0;
 	}
@@ -95,7 +102,8 @@ int main(int argc, char *argv[]) {
 	fmmm.call(GA);
 	GraphIO::write(GA, "output-MinStretchTreeEmekPeleg.gml", GraphIO::writeGML);
 	GraphIO::write(GA, "output-MinStretchTreeEmekPeleg.svg", GraphIO::drawSVG);
+	// End of Drawing GA
 
-	std::cout << "End of Testing!";
+	std::cout << "End of Testing!" << std::endl;
 	return 0;
 }
