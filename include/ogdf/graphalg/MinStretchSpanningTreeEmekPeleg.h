@@ -84,6 +84,10 @@ protected:
 			NodeArray<node>& predecessorArray // Saves the predecessor in Path from s to node with id corresponding to position in matrix
 	) ;
 
+	Array<GraphCopySimple> makeComponents(NodeArray<bool> ball, node u, unsigned int rho) ;
+
+	bool findRhoCenter(Array<GraphCopySimple> Components) ;
+
 	void calculateDist() ;
 
 	//! Recursive function that tries to construct an MSST for a given p := 2 * stretch

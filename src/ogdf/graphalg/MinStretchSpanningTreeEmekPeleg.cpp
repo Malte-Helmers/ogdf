@@ -164,13 +164,13 @@ namespace ogdf {
 
 #ifdef OGDF_DEBUG
 		std::cout << "Max Max Distance: " << maxDist <<"; Shortest Distances in m_G:" << std::endl;
-		for (int j = 0; j < m_G.numberOfNodes(); j++) {
-			std::cout << "Max Distance "<< j << ": {" << std::endl << "	";
-			for (node v : sortedNodes[j]) {
+		for (int i = 0; i < m_G.numberOfNodes(); i++) {
+			std::cout << "Max Distance "<< i << ": {" << std::endl << "	";
+			for (node v : sortedNodes[i]) {
 				std::cout << "Source Node "<< v->index() << ": [" << std::endl << "		";
-				for (int i = 0; i < m_G.numberOfNodes(); i++) {
-					std::cout << "dest-nodes at dist "<< i << ": { ";
-					for (node u : distance[v][i]) {
+				for (int j = 0; j < m_G.numberOfNodes(); j++) {
+					std::cout << "dest-nodes at dist "<< j << ": { ";
+					for (node u : distance[v][j]) {
 						std::cout << u->index() << " (pre: " << predecessors[v][u]->index() << "), ";
 					}
 					std::cout << "}" << std::endl << "		";
@@ -216,9 +216,67 @@ namespace ogdf {
 		return;
 	}
 
+	Array<GraphCopySimple> MinStretchSpanningTreeEmekPeleg:: makeComponents(NodeArray<bool> ball, node u, unsigned int rho) {
+
+	}
+
+	bool MinStretchSpanningTreeEmekPeleg::findRhoCenter(Array<GraphCopySimple> Components) {
+
+	}
+
 	bool MinStretchSpanningTreeEmekPeleg::constructTree(GraphCopySimple G, unsigned int p) {
-		std::cout << "constructTree" << std::endl;
-		return true;
+#ifdef OGDF_DEBUG
+		std::cout << " Begin of constructTree; G has " << G.numberOfNodes() << " Nodes and Rho is " << p << ":" << std::endl;
+#endif
+		// Step 0: Exit if n = 1:
+		if (G.numberOfNodes() <= 1) {
+			return true;
+		}
+		// End of Step 0
+
+		// Step 1: make a Ball(G, u, rho) for each node u in V(G) and find out if u is a rho-center, fail if none is found:
+		//-----------------------------------------------------------------------------------------------------------------
+		NodeArray<bool> ball;
+		node rho_center;
+		Array<GraphCopySimple> Components;
+
+		bool found = false;
+		for (int i = 0; i < m_G.numberOfNodes() && !found; i++) {
+			for (node v : m_sortedNodes[i]) {
+				if (!found) {
+					ball.init(G,false);
+					for (int j = 0; j < p; j++) {
+						for (node u : m_dist[v][j]) {
+							ball[u] = true;
+						}
+					}
+					Components = makeComponents(ball,v,p);
+					if (findRhoCenter(Components)) {
+						rho_center = v;
+						found = true;
+					}
+				}
+
+			}
+		}
+		if (!found) {
+			return false;
+		}
+		//-----------------------------------------------------------------------------------------------------------------
+		// End of Step 1
+
+		// Step 2: call constructLocalTree() and merge its output with F:
+		m_inTreeSpanner = &constructLocalTree(G, p); //to do make this a true merge
+		// End of Step 2
+
+		// Step 3: Take Components determined through Step 1 and cSall constructTree on the graphs induced by their nodes.
+		bool success = true;
+		for (int i = 0; i < Components.size() && success; i++) {
+			if (!constructTree(Components[i],p)) {
+				success = false;
+			}
+		}
+		return success;
 	}
 
 	EdgeArray<bool> MinStretchSpanningTreeEmekPeleg::constructLocalTree(Graph G, unsigned int p) const {
