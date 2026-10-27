@@ -35,8 +35,8 @@
 #include <ogdf/energybased/FMMMLayout.h>
 #include <ogdf/energybased/fmmm/FMMMOptions.h>
 #include <ogdf/fileformats/GraphIO.h>
-//#include <ogdf/graphalg/minStretchSpanningTreeEmekPeleg.h>
-//#include <ogdf/graphalg/minStretchSpanningTreeMCF.h>
+#include <ogdf/graphalg/MinStretchSpanningTreeEmekPeleg.h>
+//#include <ogdf/graphalg/MinStretchSpanningTreeMCF.h>
 //#include <ogdf/graphalg/TreeSpannerModule.h>
 //#include <ogdf/graphalg/ball.h>
 #include <ogdf/graphalg/ShortestPathAlgorithms.h>
@@ -48,7 +48,7 @@ using namespace ogdf;
 
 int main(int argc, char *argv[]) { //Input: .gml of Graph.
 
-	// Parsing argv and intializing G
+	// Parsing argv and initializing G
 	string inputGraph = "emek_peleg_example.gml";
 	if (argc > 1) {
 		inputGraph = argv[1];
@@ -64,13 +64,13 @@ int main(int argc, char *argv[]) { //Input: .gml of Graph.
 	// Initialize GA and set as undirected
 	GraphAttributes GA(G);
 	GA.directed() = false;
-	const Graph Gc = GA.constGraph();
+	//const Graph Gc = GA.constGraph();
 	// End of GA Initialization
 
 
-	// Preprocess shortest distances between all node pairs using bfs: Runtime O(n²m) 
+	// Preprocess shortest distances between all node pairs using bfs: Runtime O(n²+nm) 
 	// To do: optimize runtime
-	NodeArray<NodeArray<int>> distance(Gc);
+	/*NodeArray<NodeArray<int>> distance(Gc);
 	for (node v : Gc.nodes) {
 		distance[v].init(Gc);
 		distance[v][v] = 0;
@@ -83,13 +83,31 @@ int main(int argc, char *argv[]) { //Input: .gml of Graph.
 			std::cout << distance[v][u] << " ";
 		}
 		std::cout << std::endl;
-	}
+	}*/
 	// End of SPAP preprocessing
 
 
-	// Drawing GA
+	//Test Emek-Peleg's Algorithm
+	GraphCopySimple SolutionTree;
+	EdgeArray<bool> Solution;
+	MinStretchSpanningTreeEmekPeleg TS_EP = MinStretchSpanningTreeEmekPeleg();
+	TS_EP.call(GA, SolutionTree, Solution);
+	// End of Testing Emek-Peleg's Algorithm
+
+	
+	// Initialize Solution-GA and set as undirected
+	GraphAttributes GA_EP(SolutionTree);
+	GA_EP.directed() = false;
+	// End of Solution-GA Initialization
+
+
+	// Drawing GA's
 	for (node v : G.nodes) {
 		GA.width(v) = GA.height(v) = 5.0;
+	}
+
+	for (node v : SolutionTree.nodes) {
+		GA_EP.width(v) = GA_EP.height(v) = 5.0;
 	}
 
 	FMMMLayout fmmm;
@@ -100,9 +118,12 @@ int main(int argc, char *argv[]) { //Input: .gml of Graph.
 	fmmm.qualityVersusSpeed(FMMMOptions::QualityVsSpeed::GorgeousAndEfficient);
 
 	fmmm.call(GA);
-	GraphIO::write(GA, "output-MinStretchTreeEmekPeleg.gml", GraphIO::writeGML);
-	GraphIO::write(GA, "output-MinStretchTreeEmekPeleg.svg", GraphIO::drawSVG);
-	// End of Drawing GA
+	GraphIO::write(GA, "output-origGraph.svg", GraphIO::drawSVG);
+
+	fmmm.call(GA_EP);
+	GraphIO::write(GA_EP, "output-MinStretchTreeEmekPeleg.gml", GraphIO::writeGML);
+	GraphIO::write(GA_EP, "output-MinStretchTreeEmekPeleg.svg", GraphIO::drawSVG);
+	// End of Drawing GA's
 
 	std::cout << "End of Testing!" << std::endl;
 	return 0;

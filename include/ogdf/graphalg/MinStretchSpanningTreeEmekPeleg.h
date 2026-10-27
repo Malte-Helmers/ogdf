@@ -54,12 +54,12 @@ class OGDF_EXPORT MinStretchSpanningTreeEmekPeleg : public TreeSpannerModule {
 public:
 
 	//! @copydoc ogdf::TreeSpannerModule::preconditionsOk
-	virtual bool preconditionsOk(const GraphAttributes& GA, std::string& error) ;
+	virtual bool preconditionsOk(const GraphAttributes& GA, std::string& error) override ;
 
 	//! Constructs a min stretch spanning tree for the graph #m_G,
 	//! Essentially solves the optimization problem by doing a binary search on an algortihm that solves the decision problem.
 	//! Should only fail if graph is invalid.
-	void constructMSST();
+	void constructMSST() ;
 
 	//! Returns a pointer to the associated graph.
 	const GraphCopySimple* getGraph() const { return (&m_G); }
@@ -72,20 +72,29 @@ public:
 
 protected:
 
-	TreeSpannerModule::ReturnType execute() ;
+	TreeSpannerModule::ReturnType execute() override ;
 
-	void init(const GraphAttributes& GA, GraphCopySimple& treeSpanner,
-			EdgeArray<bool>& inTreeSpanner) ;
+	void init(const GraphAttributes& GA, GraphCopySimple& treeSpanner, EdgeArray<bool>& inTreeSpanner) override ;
+
+	void mod_bfs_SPAP(const Graph& G, NodeArray<Array<SListPure<node>>>& distance, 
+			NodeArray<NodeArray<node>>& predecessors, Array<SListPure<node>>& sortedNodes, int& maxDist) ;
+
+	void mod_bfs_SPSS(node s, const Graph& G, 
+			Array<SListPure<node>>& distanceArray, // Saves a queue of nodes for each distance corresponding to the position in matrix
+			NodeArray<node>& predecessorArray // Saves the predecessor in Path from s to node with id corresponding to position in matrix
+	) ;
+
+	void calculateDist() ;
 
 	//! Recursive function that tries to construct an MSST for a given p := 2 * stretch
 	//! Can fail if the given p is smaller than twice the graph's #m_G stretch
-	bool constructTree(GraphCopySimple G, unsigned int p);
+	bool constructTree(GraphCopySimple G, unsigned int p) ;
 
 	//! Recursive function that tries to construct an MSST for a given p := 2 * stretch
-	EdgeSet constructLocalTree(Graph G, unsigned int p) const;
+	EdgeArray<bool> constructLocalTree(Graph G, unsigned int p) const ;
 
 	//! Returns an edgeless spanning forest of #m_G .
-	Graph newForest() const;
+	//Graph newForest() const;
 
 	using TreeSpannerModule::assertTimeLeft;
 	using TreeSpannerModule::m_GA;
@@ -95,6 +104,11 @@ protected:
 private:
 	GraphCopySimple m_G; //!< The copy of GA.constGraph() to work on.
 	Graph m_F; //!< The Solution; Starts off as edgeless spanning forest of #m_g.
+	//NodeArray<NodeArray<int>> m_Dist; //!< Array saving Distances calculated in default SPAP.
+	NodeArray<Array<SListPure<node>>> m_dist;
+	NodeArray<NodeArray<node>> m_predecessors;
+	Array<SListPure<node>> m_sortedNodes; //!< Array saving Distances, Sorted by Distance
+	int m_maxDist;
 
 	EpsilonTest m_eps;
 

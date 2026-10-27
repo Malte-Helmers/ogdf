@@ -47,7 +47,7 @@ namespace ogdf {
         const Graph G = GA.constGraph();
         ConnectivityTester CT = ConnectivityTester();
         NodeArray<NodeArray<int>> matrix(G, NodeArray<int>(G));
-        if (CT.computeConnectivity(G,matrix)) {
+        if (CT.computeConnectivity(G,matrix) == 0) {
 			error = "The graph must be connected. Try inputting each component instead";
 			return false;
 		}
@@ -59,10 +59,170 @@ namespace ogdf {
         return TreeSpannerModule::ReturnType::Optimal; //Not entirely true, it's within O(log n) of the actual optimal solution
     }
 
-	void MinStretchSpanningTreeEmekPeleg::init(const GraphAttributes& GA, GraphCopySimple& treeSpanner,
-			EdgeArray<bool>& inTreeSpanner) {
+	void MinStretchSpanningTreeEmekPeleg::init(const GraphAttributes& GA, GraphCopySimple& treeSpanner, EdgeArray<bool>& inTreeSpanner) {
 		TreeSpannerModule::init(GA, treeSpanner, inTreeSpanner);
 		m_G.clear();
 		m_G.init(GA.constGraph());
+	}
+
+	void MinStretchSpanningTreeEmekPeleg::mod_bfs_SPAP(const Graph& G, NodeArray<Array<SListPure<node>>>& distance, 
+			NodeArray<NodeArray<node>>& predecessors, Array<SListPure<node>>& sortedNodes, int& maxDist) {
+		for (node v : G.nodes) {
+			mod_bfs_SPSS(v, G, distance[v], predecessors[v]);
+		}
+
+		maxDist = 0;
+		for (Array<SListPure<node>> V : distance) {
+			int max = -1;
+			for (int i = 0; i < V.size() && !V[i].empty(); i++) {
+				max++;
+			}
+			if (max > maxDist) {
+				maxDist = max;
+			}
+			sortedNodes[max].pushBack(V[0].front()); //to do: maybe make a sorted list instead, 
+			//the purpose of SortedNodes is mainly for iterating through rho-centers with smallest max distance to biggest max distance
+			// in the end it still has to go through all to exclude all, as a big max distance doesn't necessarily deny a rho-center 
+			//(exception being when rho >= max distance of node). Another heuristic could be to count how many nodes are within a certain distance, 
+			//but this'd need to be done and sorted for each possible rho, 
+			//to make such an algorithm you'd just count the sum of all destination nodes within the smallest distance, 
+			//then go to the next and add that ones amount + the previous, and so on. but having to sort it for each rho would still take time.
+			//maybe less time than testing for rho-centers though.
+		}
+	}
+
+	void MinStretchSpanningTreeEmekPeleg::mod_bfs_SPSS(node s, const Graph& G, Array<SListPure<node>>& distanceArray, NodeArray<node>& predecessorArray) {
+		NodeArray<int> mark(G, 0);
+		SListPure<node> bfs;
+		bfs.pushBack(s);
+		// mark s and set distance to itself 0
+		mark[s] = 1;
+		distanceArray[0].pushBack(s);
+		predecessorArray[s] = s;
+		while (!bfs.empty()) {
+			node w = bfs.popFrontRet();
+			int d = mark[w];
+			for (adjEntry adj : w->adjEntries) {
+				node v = adj->twinNode();
+				if (mark[v] == 0) {
+					mark[v] = d + 1;
+					bfs.pushBack(v);
+					distanceArray[d].pushBack(v);
+					predecessorArray[v] = w;
+				}
+			}
+		}
+	}
+
+	void MinStretchSpanningTreeEmekPeleg::calculateDist() {
+		/* //calc dist using default SPAP:
+		NodeArray<NodeArray<int>> distance(m_G);
+		for (node v : m_G.nodes) {
+			distance[v].init(m_G);
+			distance[v][v] = 0;
+		}
+
+		bfs_SPAP(m_G, distance, 1); // To do: optimize runtime by using thorup SPSP for all vertices, currently has O(|V²|+|V||E|)
+									// with Thorup's algorithm it'd be O(|E|) for single source, so O(|V|*|E|) for all pairs.
+
+#ifdef OGDF_DEBUG
+		std::cout << "shortest distances in m_G:" << std::endl;
+		for (node v : m_G.nodes) {
+			for (node u : m_G.nodes) {
+				std::cout << distance[v][u] << " ";
+			}
+			std::cout << std::endl;
+		}
+#endif
+		m_dist = distance;
+
+		return;
+		*/
+		
+		//calc dist using modified SPAP:
+		NodeArray<Array<SListPure<node>>> distance(m_G);
+		for (node v : m_G.nodes) {
+			distance[v].init(m_G.numberOfNodes());
+			for (int i = 0; i < m_G.numberOfNodes(); i++) {
+				distance[v][i] = SListPure<node>();
+			}
+		}
+
+		NodeArray<NodeArray<node>> predecessors(m_G);
+		for (node v : m_G.nodes) {
+			predecessors[v].init(m_G);
+		}
+
+		Array<SListPure<node>> sortedNodes(m_G.numberOfNodes());
+		for (int i = 0; i < m_G.numberOfNodes(); i++) {
+			sortedNodes[i] = SListPure<node>();
+		}
+
+		int maxDist = 0;
+
+		mod_bfs_SPAP(m_G, distance, predecessors, sortedNodes, maxDist);
+
+#ifdef OGDF_DEBUG
+		std::cout << "Max Max Distance: " << maxDist <<"; Shortest Distances in m_G:" << std::endl;
+		for (int j = 0; j < m_G.numberOfNodes(); j++) {
+			std::cout << "Max Distance "<< j << ": {" << std::endl << "	";
+			for (node v : sortedNodes[j]) {
+				std::cout << "Source Node "<< v->index() << ": [" << std::endl << "		";
+				for (int i = 0; i < m_G.numberOfNodes(); i++) {
+					std::cout << "dest-nodes at dist "<< i << ": { ";
+					for (node u : distance[v][i]) {
+						std::cout << u->index() << " (pre: " << predecessors[v][u]->index() << "), ";
+					}
+					std::cout << "}" << std::endl << "		";
+				}
+				std::cout << "]" << std::endl << "	";
+
+			}
+			std::cout << "}" << std::endl;
+		}
+#endif
+		m_dist = distance;
+		m_predecessors = predecessors;
+		m_sortedNodes = sortedNodes;
+		m_maxDist = maxDist;
+
+		return;
+	}
+
+	void MinStretchSpanningTreeEmekPeleg::constructMSST() {
+		int R = m_G.numberOfNodes();
+		int L = 1;
+		GraphCopySimple T_head;
+
+		MinStretchSpanningTreeEmekPeleg::calculateDist();
+
+		for (m_stretch = floor((L+R)/2); L <= m_stretch && m_stretch <= R; m_stretch = floor((L+R)/2)) {
+#ifdef OGDF_DEBUG
+			std::cout << "L: " << L << " Kappa: " << m_stretch << " R: " << R << std::endl;
+#endif
+			if (MinStretchSpanningTreeEmekPeleg::constructTree(m_G, 2*m_stretch)) {
+				T_head = *m_treeSpanner;
+				R = m_stretch - 1;
+			} else {
+				L = m_stretch + 1;
+			}
+			MinStretchSpanningTreeEmekPeleg::init(*m_GA, *m_treeSpanner, *m_inTreeSpanner);
+		}
+#ifdef OGDF_DEBUG
+			OGDF_ASSERT(!( T_head.empty() ));
+#endif
+		m_treeSpanner = &T_head;
+		//m_inTreeSpanner = ...
+		return;
+	}
+
+	bool MinStretchSpanningTreeEmekPeleg::constructTree(GraphCopySimple G, unsigned int p) {
+		std::cout << "constructTree" << std::endl;
+		return true;
+	}
+
+	EdgeArray<bool> MinStretchSpanningTreeEmekPeleg::constructLocalTree(Graph G, unsigned int p) const {
+		EdgeArray<bool> T_local(G);
+		return T_local;
 	}
 }

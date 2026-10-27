@@ -188,18 +188,15 @@ public:
 	 *
 	 * \returns true if the \p treeSpanner is a k-multiplicative tree-spanner of \p GA
 	 */
-	static bool isMultiplicativeTreeSpanner(const GraphAttributes& GA, const GraphCopySimple& treeSpanner,
-			int stretch);
+	//static bool isMultiplicativeTreeSpanner(const GraphAttributes& GA, const GraphCopySimple& treeSpanner, int stretch);
 
 	/**
 	 * Calculates an all-pair shortest-path on \p treeSpanner
 	 */
-	static void apspTreeSpanner(const GraphCopySimple& treeSpanner,
-			NodeArray<NodeArray<int>>& shortestPathMatrix);
-
+	//static void apspTreeSpanner(const GraphCopySimple& treeSpanner, NodeArray<NodeArray<int>>& shortestPathMatrix);
 
 };
-
+/*
 void TreeSpannerModule::apspTreeSpanner(const GraphCopySimple& treeSpanner,
 		NodeArray<NodeArray<int>>& shortestPathMatrix) {
 	EdgeArray<int> weights(treeSpanner);
@@ -241,5 +238,6 @@ bool TreeSpannerModule::isMultiplicativeTreeSpanner(const GraphAttributes& GA,
 
 	return true;
 }
+*/
 
 }
