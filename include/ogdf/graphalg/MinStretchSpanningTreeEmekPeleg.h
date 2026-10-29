@@ -97,7 +97,7 @@ protected:
 	bool constructTree(GraphCopySimple G, unsigned int p) ;
 
 	//! Recursive function that tries to construct an MSST for a given p := 2 * stretch
-	EdgeArray<bool> constructLocalTree(Graph G, unsigned int p, Array<NodeArray<bool>> Clusters) const ;
+	EdgeArray<bool> constructLocalTree(Graph G, node u, unsigned int p, Array<NodeArray<bool>> Clusters) const ;
 
 	//! Returns an edgeless spanning forest of #m_G .
 	//Graph newForest() const;
@@ -110,6 +110,7 @@ protected:
 private:
 	GraphCopySimple m_G; //!< The copy of GA.constGraph() to work on.
 	Graph m_F; //!< The Solution; Starts off as edgeless spanning forest of #m_g.
+	Array<NodeArray<bool>> m_Clusters;
 	//NodeArray<NodeArray<int>> m_Dist; //!< Array saving Distances calculated in default SPAP.
 	NodeArray<Array<SListPure<node>>> m_dist;
 	NodeArray<NodeArray<node>> m_predecessors;

@@ -32,6 +32,7 @@
 #include <ogdf/graphalg/MinStretchSpanningTreeEmekPeleg.h>
 #include <ogdf/graphalg/ConnectivityTester.h>
 #include <ogdf/graphalg/ShortestPathAlgorithms.h>
+#include <ogdf/basic/GraphSets.h>
 
 namespace ogdf {
 
@@ -272,8 +273,8 @@ namespace ogdf {
 		// End of Step 1
 
 		// Step 2: call constructLocalTree() and merge its output with F:
-		Array<NodeArray<bool>> Clusters;
-		m_inTreeSpanner = &constructLocalTree(G, p, Clusters); //to do make this a true merge
+		Array<NodeArray<bool>> Clusters = m_Clusters; // to do: make more elegant
+		m_inTreeSpanner = &constructLocalTree(G, rho_center, p, Clusters); //to do: make this a true merge
 		// End of Step 2
 
 		//Step 3: determine if P' is a hub, i.e. with exception of the one containing rho-center,
@@ -294,8 +295,43 @@ namespace ogdf {
 		// End of Step 4
 	}
 
-	EdgeArray<bool> MinStretchSpanningTreeEmekPeleg::constructLocalTree(Graph G, unsigned int p, Array<NodeArray<bool>> Clusters) const {
-		EdgeArray<bool> T_local(G);
+	EdgeArray<bool> MinStretchSpanningTreeEmekPeleg::constructLocalTree(Graph G, node u, unsigned int p, Array<NodeArray<bool>> Clusters) const {
+		EdgeArray<bool> T_local(G); // to do: maybe use EdgeSet instead of EdgeArray<bool>, and NodeSet instead of NodeArray<bool>: EdgeSet T_local(G);
+		int resultSize = Clusters.size();
+		Array<bool> remClusters(resultSize,true);
+
+		// Does a variation of Dijkstra's Algorithm:
+		for (int i = 0; i < (int)(2/3)*p; i++) {
+			for (node v : m_dist[u][i]) {
+				if (!Clusters[0][v]) {
+					for (int j = 1; j < Clusters.size(); j++) { //to do: make a new ClusterArray, that takes inaccessable Clusters and puts the nodes of the rest into [0]
+						if (Clusters[j][v]) {
+							remClusters[j] = false;
+							resultSize--;
+							for (node x : G.nodes) { // Merge Cluster 0 with Cluster that contains v
+								Clusters[0][x] |= Clusters[j][x];
+							}
+						}
+					}
+					edge lastEdge = m_G.searchEdge(m_predecessors[u][v], v);
+					T_local(lastEdge) = true;
+				}
+			}
+		}
+
+		//Constructs new Clusters-Array:
+		Array<NodeArray<bool>> result(resultSize);
+		int newElem = 1;
+		result[0] = Clusters[0];
+		for (int i = 1; i < Clusters.size() && newElem < resultSize; i++) {
+			if (remClusters[i]) {
+				result[newElem] = Clusters[i];
+				newElem++;
+			}
+		}
+
+		Clusters = result;
+		
 		return T_local;
 	}
 }
