@@ -88,6 +88,8 @@ protected:
 
 	bool findRhoCenter(Array<GraphCopySimple> Components) ;
 
+	bool isHub(Array<NodeArray<bool>> Clusters, Array<GraphCopySimple> Components) ;
+
 	void calculateDist() ;
 
 	//! Recursive function that tries to construct an MSST for a given p := 2 * stretch
@@ -95,7 +97,7 @@ protected:
 	bool constructTree(GraphCopySimple G, unsigned int p) ;
 
 	//! Recursive function that tries to construct an MSST for a given p := 2 * stretch
-	EdgeArray<bool> constructLocalTree(Graph G, unsigned int p) const ;
+	EdgeArray<bool> constructLocalTree(Graph G, unsigned int p, Array<NodeArray<bool>> Clusters) const ;
 
 	//! Returns an edgeless spanning forest of #m_G .
 	//Graph newForest() const;

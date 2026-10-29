@@ -217,11 +217,17 @@ namespace ogdf {
 	}
 
 	Array<GraphCopySimple> MinStretchSpanningTreeEmekPeleg:: makeComponents(NodeArray<bool> ball, node u, unsigned int rho) {
+		Array<GraphCopySimple> Comp;
 
+		return Comp;
 	}
 
 	bool MinStretchSpanningTreeEmekPeleg::findRhoCenter(Array<GraphCopySimple> Components) {
+		return true;
+	}
 
+	bool MinStretchSpanningTreeEmekPeleg::isHub(Array<NodeArray<bool>> Clusters, Array<GraphCopySimple> Components) {
+		return true;	
 	}
 
 	bool MinStretchSpanningTreeEmekPeleg::constructTree(GraphCopySimple G, unsigned int p) {
@@ -266,10 +272,18 @@ namespace ogdf {
 		// End of Step 1
 
 		// Step 2: call constructLocalTree() and merge its output with F:
-		m_inTreeSpanner = &constructLocalTree(G, p); //to do make this a true merge
+		Array<NodeArray<bool>> Clusters;
+		m_inTreeSpanner = &constructLocalTree(G, p, Clusters); //to do make this a true merge
 		// End of Step 2
 
-		// Step 3: Take Components determined through Step 1 and cSall constructTree on the graphs induced by their nodes.
+		//Step 3: determine if P' is a hub, i.e. with exception of the one containing rho-center,
+		// if the clusters in m_inTreeSpanner will remain connected when split among the components of Step 1.
+			if (!isHub(Clusters,Components)) {
+				return false;
+			}
+		// End of Step 3
+
+		// Step 4: Take Components determined through Step 1 and call constructTree on the graphs induced by their nodes.
 		bool success = true;
 		for (int i = 0; i < Components.size() && success; i++) {
 			if (!constructTree(Components[i],p)) {
@@ -277,9 +291,10 @@ namespace ogdf {
 			}
 		}
 		return success;
+		// End of Step 4
 	}
 
-	EdgeArray<bool> MinStretchSpanningTreeEmekPeleg::constructLocalTree(Graph G, unsigned int p) const {
+	EdgeArray<bool> MinStretchSpanningTreeEmekPeleg::constructLocalTree(Graph G, unsigned int p, Array<NodeArray<bool>> Clusters) const {
 		EdgeArray<bool> T_local(G);
 		return T_local;
 	}
