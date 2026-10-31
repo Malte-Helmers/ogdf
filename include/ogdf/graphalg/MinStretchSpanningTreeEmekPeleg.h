@@ -84,13 +84,13 @@ protected:
 			NodeArray<node>& predecessorArray // Saves the predecessor in Path from s to node with id corresponding to position in matrix
 	) ;
 
-	Array<GraphCopySimple> makeComponents(NodeArray<bool> ball, node u, unsigned int rho) ;
+	NodeArray<int> makeComponents(NodeArray<bool> ball, node u, unsigned int rho) ;
 
-	bool findRhoCenter(Array<GraphCopySimple> Components) ;
+	bool findRhoCenter(NodeArray<int> Components) ;
 
-	bool isHub(Array<NodeArray<bool>> Clusters, Array<GraphCopySimple> Components) ;
+	bool isHub(Array<NodeArray<bool>> Clusters, NodeArray<int> Components) ;
 
-	void calculateDist() ;
+	void calculateDist(Graph G) ;
 
 	//! Recursive function that tries to construct an MSST for a given p := 2 * stretch
 	//! Can fail if the given p is smaller than twice the graph's #m_G stretch
@@ -115,7 +115,11 @@ private:
 	NodeArray<Array<SListPure<node>>> m_dist;
 	NodeArray<NodeArray<node>> m_predecessors;
 	Array<SListPure<node>> m_sortedNodes; //!< Array saving Distances, Sorted by Distance
+
+	Array<Graph> m_compSubGraphs;
+	Array<NodeArray<node>> m_nodeMappings;
 	int m_maxDist;
+	int m_compAmnt;
 
 	EpsilonTest m_eps;
 

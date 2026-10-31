@@ -188,25 +188,7 @@ public:
 	 *
 	 * \returns true if the \p treeSpanner is a k-multiplicative tree-spanner of \p GA
 	 */
-	//static bool isMultiplicativeTreeSpanner(const GraphAttributes& GA, const GraphCopySimple& treeSpanner, int stretch);
-
-	/**
-	 * Calculates an all-pair shortest-path on \p treeSpanner
-	 */
-	//static void apspTreeSpanner(const GraphCopySimple& treeSpanner, NodeArray<NodeArray<int>>& shortestPathMatrix);
-
-};
-/*
-void TreeSpannerModule::apspTreeSpanner(const GraphCopySimple& treeSpanner,
-		NodeArray<NodeArray<int>>& shortestPathMatrix) {
-	EdgeArray<int> weights(treeSpanner);
-	for (edge e : treeSpanner.edges) {
-		weights[e] = 1;
-	}
-	dijkstra_SPAP(treeSpanner, shortestPathMatrix, weights);
-}
-
-bool TreeSpannerModule::isMultiplicativeTreeSpanner(const GraphAttributes& GA,
+	static bool isMultiplicativeTreeSpanner(const GraphAttributes& GA,
 		const GraphCopySimple& treeSpanner, int stretch) {
 	const Graph& G = GA.constGraph();
 	OGDF_ASSERT(&(treeSpanner.original()) == &G);
@@ -238,6 +220,19 @@ bool TreeSpannerModule::isMultiplicativeTreeSpanner(const GraphAttributes& GA,
 
 	return true;
 }
-*/
+
+	/**
+	 * Calculates an all-pair shortest-path on \p treeSpanner
+	 */
+	static void apspTreeSpanner(const GraphCopySimple& treeSpanner, NodeArray<NodeArray<int>>& shortestPathMatrix) {
+	EdgeArray<int> weights(treeSpanner);
+	for (edge e : treeSpanner.edges) {
+		weights[e] = 1;
+	}
+	dijkstra_SPAP(treeSpanner, shortestPathMatrix, weights);
+}
+
+};
+
 
 }
