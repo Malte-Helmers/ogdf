@@ -125,10 +125,10 @@ public:
 	int64_t getTimeNeeded() { return m_watch.milliSeconds(); }
 
 protected:
-	const GraphAttributes* m_GA;
-	int m_stretch;
-	GraphCopySimple* m_treeSpanner;
-	EdgeArray<bool>* m_inTreeSpanner;
+	const GraphAttributes* m_GA; //!< The Graph to calculate a TreeSpanner for.
+	int m_stretch; //!< (Is assigned) the (lower bound of) the Stretch of the final TreeSpanner.
+	GraphCopySimple* m_treeSpanner; //!< Is assigned the finished TreeSpanner.
+	EdgeArray<bool>* m_inTreeSpanner; //!< Is assigned the edges of the finished TreeSpanner.
 
 	/**
 	 * Initializes members and create an empty tree-spanner.

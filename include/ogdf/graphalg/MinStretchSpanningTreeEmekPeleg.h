@@ -34,7 +34,7 @@
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/basic.h>
-//#include <ogdf/graphalg/ball.h>
+#include <ogdf/graphalg/Ball.h>
 #include <ogdf/graphalg/TreeSpannerModule.h>
 
 #include <functional>
@@ -59,48 +59,29 @@ public:
 	//! Constructs a min stretch spanning tree for the graph #m_G,
 	//! Essentially solves the optimization problem by doing a binary search on an algortihm that solves the decision problem.
 	//! Should only fail if graph is invalid.
-	void constructMSST() ;
+	EdgeArray<bool>* constructMSST(const Graph& G_hat) ;
 
 	//! Returns a pointer to the associated graph.
-	const GraphCopySimple* getGraph() const { return (&m_G); }
+	//const GraphCopySimple* getGraph() const { return (m_G); }
 
 	//! Sets the associated graph.
-	void setGraph(GraphCopySimple& G) {
-		OGDF_ASSERT(!G.empty());
-		m_G = G;
-	}
+	//void setGraph(GraphCopySimple& G) {
+	//	OGDF_ASSERT(!G.empty());
+	//	*m_G = G;
+	//}
 
 protected:
 
 	TreeSpannerModule::ReturnType execute() override ;
 
-	void init(const GraphAttributes& GA, GraphCopySimple& treeSpanner, EdgeArray<bool>& inTreeSpanner) override ;
-
-	void mod_bfs_SPAP(const Graph& G, NodeArray<Array<SListPure<node>>>& distance, 
-			NodeArray<NodeArray<node>>& predecessors, Array<SListPure<node>>& sortedNodes, int& maxDist) ;
-
-	void mod_bfs_SPSS(node s, const Graph& G, 
-			Array<SListPure<node>>& distanceArray, // Saves a queue of nodes for each distance corresponding to the position in matrix
-			NodeArray<node>& predecessorArray // Saves the predecessor in Path from s to node with id corresponding to position in matrix
-	) ;
-
-	NodeArray<int> makeComponents(NodeArray<bool> ball, node u, unsigned int rho) ;
-
-	bool findRhoCenter(NodeArray<int> Components) ;
-
-	bool isHub(Array<NodeArray<bool>> Clusters, NodeArray<int> Components) ;
-
-	void calculateDist(Graph G) ;
+	//void init(const GraphAttributes& GA, GraphCopySimple& treeSpanner, EdgeArray<bool>& inTreeSpanner) override ;
 
 	//! Recursive function that tries to construct an MSST for a given p := 2 * stretch
 	//! Can fail if the given p is smaller than twice the graph's #m_G stretch
-	bool constructTree(GraphCopySimple G, unsigned int p) ;
+	bool constructTree(const Graph& G, int rho) ;
 
 	//! Recursive function that tries to construct an MSST for a given p := 2 * stretch
-	EdgeArray<bool> constructLocalTree(Graph G, node u, unsigned int p, Array<NodeArray<bool>> Clusters) const ;
-
-	//! Returns an edgeless spanning forest of #m_G .
-	//Graph newForest() const;
+	EdgeArray<bool> constructLocalTree(const Graph& G, node u, int rho, Array<NodeArray<bool>>& Clusters);
 
 	using TreeSpannerModule::assertTimeLeft;
 	using TreeSpannerModule::m_GA;
@@ -108,20 +89,12 @@ protected:
 	using TreeSpannerModule::m_treeSpanner;
 	using TreeSpannerModule::m_inTreeSpanner;
 private:
-	GraphCopySimple m_G; //!< The copy of GA.constGraph() to work on.
-	Graph m_F; //!< The Solution; Starts off as edgeless spanning forest of #m_g.
-	Array<NodeArray<bool>> m_Clusters;
-	//NodeArray<NodeArray<int>> m_Dist; //!< Array saving Distances calculated in default SPAP.
-	NodeArray<Array<SListPure<node>>> m_dist;
-	NodeArray<NodeArray<node>> m_predecessors;
-	Array<SListPure<node>> m_sortedNodes; //!< Array saving Distances, Sorted by Distance
-
-	Array<Graph> m_compSubGraphs;
-	Array<NodeArray<node>> m_nodeMappings;
-	int m_maxDist;
-	int m_compAmnt;
-
-	EpsilonTest m_eps;
+	//		Vars for Solution
+	EdgeArray<bool>* F; //!< saves the Solution for the current rho.
+	Ball B;
+	DistanceMetric delta;
+	ConnectivityPartition P;
+	ComponentSet Components;
 
 };
 
