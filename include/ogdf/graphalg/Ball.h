@@ -60,17 +60,17 @@ public :
 	//! Creates an instance of Ball.
 	Ball() = default;
 
-	Ball(const Graph& G, const DistanceMetric& delta, int rho) {this->findRhoCenter(G, delta, rho);}
+	Ball(const Graph& G_hat, GraphCopySimple& G, const DistanceMetric& delta, int rho) {this->findRhoCenter(G_hat, G, delta, rho);}
 
-	Ball(const Graph& G, const DistanceMetric& delta, int rho, node u) {this->init(G, delta, rho, u);}
+	Ball(const Graph& G_hat, GraphCopySimple& G, const DistanceMetric& delta, int rho, node u) {this->init(G_hat, G, delta, rho, u);}
 
 
 	//! Destructor.
 	~Ball() = default;
 
-	bool findRhoCenter(const Graph& G, const DistanceMetric& delta, int rho) ;
+	bool findRhoCenter(const Graph& G_hat, GraphCopySimple& G, const DistanceMetric& delta, int rho) ;
 
-	void init(const Graph& G, const DistanceMetric& delta, int rho, node u) ;
+	void init(const Graph& G_hat, GraphCopySimple& G, const DistanceMetric& delta, int rho, node u) ;
 
 	NodeArray<bool> internalNodes;
 	//EdgeArray<bool> internalEdges; //kinda redundant right now
@@ -82,7 +82,7 @@ public :
 
 protected:
 
-	bool validRhoCenter(const Graph& G) const ;
+	bool validRhoCenter(const Graph& G_hat, GraphCopySimple& G) const ;
 
 };
 

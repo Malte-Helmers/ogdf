@@ -49,27 +49,93 @@
 
 namespace ogdf {
 
-void ComponentSet::init(const Graph& G, EdgeSet removedEdges) {
-	compIndices = NodeArray<int>(G);
+void ComponentSet::init(const Graph& G_hat, GraphCopySimple& G, EdgeSet removedEdges) {
+	compIndices = NodeArray<int>(G_hat);
 
 	ArrayBuffer<node> repr;
 
-	GraphCopySimple tempG;
-	tempG.init(G);
-
 	for (edge e : removedEdges) {
-		tempG.delEdge(e);
+		G.delEdge(G.copy(e));
 	}
 	
-	compAmount = connectedComponents(tempG, compIndices, nullptr, &repr);
+	//compAmount = connectedComponents(G, compIndices, nullptr, &repr);
+	determineComponents(G_hat, G, compIndices, repr);
 	
 	components.init(compAmount);
-	nodeMap.init(compAmount);
+	//nodeMap.init(compAmount);
 
 
 	for (int i = 0; i < compAmount; i++) {
-		nodeMap[i].init(G);
-		embedder::ConnectedSubgraph<int>::call(G, components[i], repr[i], nodeMap[i]);
+		//nodeMap[i].init(G);
+		//embedder::ConnectedSubgraph<int>::call(G, components[i], repr[i], nodeMap[i]);
+		constructInducedSubgraph(G_hat, G, compIndices, components[i], repr[i]);
+	}
+}
+
+void ComponentSet::determineComponents(const Graph& G_hat, GraphCopySimple& G, NodeArray<int>& compIndices, ArrayBuffer<node>& repr) {
+	compIndices.init(G_hat, -1);
+	repr.init(G.numberOfNodes());
+
+	int compAmnt = 0;
+
+	for (node u : G.nodes) {
+		if (compIndices[G.original(u)] == -1) {
+
+			compIndices[G.original(u)] = compAmnt;
+			repr.push(G.original(u));
+
+			//simple and naive impl through bfs
+			SListPure<node> bfs;
+			bfs.pushBack(u);
+			while (!bfs.empty()) {
+				node w = bfs.popFrontRet();
+				for (adjEntry adj : w->adjEntries) {
+					node v = adj->twinNode();
+					if (compIndices[G.original(v)] == -1) {
+						compIndices[G.original(v)] = compAmnt;
+						bfs.pushBack(v);
+					}
+				}
+			}
+
+			compAmnt++;
+		}
+	}
+}
+
+void ComponentSet::constructInducedSubgraph(const Graph& G_hat, GraphCopySimple& G, NodeArray<int>& compIndices, GraphCopySimple& subGraph, node source) {
+	subGraph.clear();
+	subGraph.setOriginalGraph(G_hat);
+
+	int compIndex = compIndices[source];
+
+	//simple and naive impl through bfs
+	SListPure<node> bfs;
+	NodeArray<bool> markNode(G_hat, false);
+	EdgeArray<bool> markEdge(G_hat, false);
+
+	subGraph.newNode(source);
+	markNode[source] = true;
+	bfs.pushBack(source);
+
+	while (!bfs.empty()) {
+		node w = bfs.popFrontRet();
+		for (adjEntry adj : w->adjEntries) {
+			node v = adj->twinNode();
+			edge e = adj->theEdge();
+			if (compIndices[v] == compIndex && !markEdge[e]) {
+
+				if (!markNode[v]) {
+
+					subGraph.newNode(v);
+					markNode[v] = true;
+					bfs.pushBack(v);
+				}
+
+				subGraph.newEdge(e);
+				markEdge[e] = true;
+			}
+		}
 	}
 }
 

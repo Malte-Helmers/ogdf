@@ -71,10 +71,10 @@ protected:
 
 	//! Recursive function that tries to construct an MSST for a given p := 2 * stretch
 	//! Can fail if the given p is smaller than twice the graph's #m_G stretch
-	bool constructTree(const Graph& G, int rho, const DistanceMetric& delta) ;
+	bool constructTree(const Graph& G_hat, GraphCopySimple& G, int rho, const DistanceMetric& delta) ;
 
 	//! Recursive function that tries to construct an MSST for a given p := 2 * stretch
-	EdgeArray<bool> constructLocalTree(const Graph& G, node u, int rho, const DistanceMetric& delta);
+	EdgeArray<bool> constructLocalTree(const Graph& G_hat, GraphCopySimple& G, node u, int rho, const DistanceMetric& delta);
 
 	using TreeSpannerModule::assertTimeLeft;
 	using TreeSpannerModule::m_GA;

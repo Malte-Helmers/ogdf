@@ -94,6 +94,9 @@ EdgeArray<bool> MinStretchSpanningTreeEmekPeleg::constructMSST(const Graph& G_ha
 
 	DistanceMetric delta = DistanceMetric(G_hat);
 
+	GraphCopySimple G; //Editable Copy of G_hat with reference to G_hat
+
+
 	int R = G_hat.numberOfNodes();
 	int L = 1;
 
@@ -111,8 +114,10 @@ EdgeArray<bool> MinStretchSpanningTreeEmekPeleg::constructMSST(const Graph& G_ha
 		F_alt.clear();
 		P.init(G_hat);
 
+		G.init(G_hat);
 
-		if (MinStretchSpanningTreeEmekPeleg::constructTree(G_hat, 2*kappa, delta)) {
+
+		if (MinStretchSpanningTreeEmekPeleg::constructTree(G_hat, G, 2*kappa, delta)) {
 			T_hat = F;
 			R = kappa - 1;
 
@@ -128,7 +133,7 @@ EdgeArray<bool> MinStretchSpanningTreeEmekPeleg::constructMSST(const Graph& G_ha
 	return T_hat;
 }
 
-bool MinStretchSpanningTreeEmekPeleg::constructTree(const Graph& G, int rho, const DistanceMetric& delta) {
+bool MinStretchSpanningTreeEmekPeleg::constructTree(const Graph& G_hat, GraphCopySimple& G, int rho, const DistanceMetric& delta) {
 #ifdef OGDF_DEBUG
 	std::cout << " Begin of constructTree; G has " << G.numberOfNodes() << " Nodes and Rho is " << rho << ":" << std::endl;
 #endif
@@ -148,7 +153,7 @@ bool MinStretchSpanningTreeEmekPeleg::constructTree(const Graph& G, int rho, con
 	// End of Step 1
 
 	// Step 2: call constructLocalTree() and merge its output T_local with F:
-	EdgeArray<bool> T_local = constructLocalTree(G, B.rhoCenter, rho, delta);
+	EdgeArray<bool> T_local = constructLocalTree(G_hat, G, B.rhoCenter, rho, delta);
 
 	for (edge e : G.edges) {	//merge F with T_Local. to do: make more efficient: would be redundant if i just used F in constructLocalTree
 		F[e] |= T_local[e];
@@ -165,8 +170,8 @@ bool MinStretchSpanningTreeEmekPeleg::constructTree(const Graph& G, int rho, con
 	// Step 4: Take Components determined through Step 1 and call constructTree on the graphs induced by their nodes.
 	bool success = true;
 	for (int i = 0; i < B.decomposedGraph.compAmount && success; i++) {
-		Graph* Component = &B.decomposedGraph.components[i];
-		if (!constructTree(*Component, rho, delta)) {
+		GraphCopySimple* Component = &B.decomposedGraph.components[i];
+		if (!constructTree(G_hat, *Component, rho, delta)) {
 			success = false;
 		}
 	}
@@ -174,7 +179,7 @@ bool MinStretchSpanningTreeEmekPeleg::constructTree(const Graph& G, int rho, con
 	// End of Step 4
 }
 
-EdgeArray<bool> MinStretchSpanningTreeEmekPeleg::constructLocalTree(const Graph& G, node u, int rho, const DistanceMetric& delta) {
+EdgeArray<bool> MinStretchSpanningTreeEmekPeleg::constructLocalTree(const Graph& G_hat, GraphCopySimple& G, node u, int rho, const DistanceMetric& delta) {
 	EdgeArray<bool> T_local(G); // to do maybe just use F outright instead. Would require constructLocalTree to be void.
 
 	// Does a variation of Dijkstra's Algorithm:

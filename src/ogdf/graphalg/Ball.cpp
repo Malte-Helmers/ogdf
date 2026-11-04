@@ -49,7 +49,7 @@
 
 namespace ogdf {
 	
-bool Ball::findRhoCenter(const Graph& G, const DistanceMetric& delta, int rho) {
+bool Ball::findRhoCenter(const Graph& G_hat, GraphCopySimple& G, const DistanceMetric& delta, int rho) {
 
 	bool found = false;
 
@@ -67,7 +67,7 @@ bool Ball::findRhoCenter(const Graph& G, const DistanceMetric& delta, int rho) {
 	return found;
 }
 
-void Ball::init(const Graph& G, const DistanceMetric& delta, int rho, node u) {
+void Ball::init(const Graph& G_hat, GraphCopySimple& G, const DistanceMetric& delta, int rho, node u) {
 	internalNodes.init(G, false);
 	//internalEdges.init(G, false);
 
@@ -90,7 +90,7 @@ void Ball::init(const Graph& G, const DistanceMetric& delta, int rho, node u) {
 	decomposedGraph.init(G, intEdgeSet);
 }
 
-bool Ball::validRhoCenter(const Graph& G) const {
+bool Ball::validRhoCenter(const Graph& G_hat, GraphCopySimple& G) const {
 	
 	for (int i = 0; i < decomposedGraph.compAmount; i++) {
 

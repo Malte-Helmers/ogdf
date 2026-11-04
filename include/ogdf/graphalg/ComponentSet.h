@@ -46,16 +46,21 @@ class OGDF_EXPORT ComponentSet {
 public:
 	ComponentSet() = default;
 
-	ComponentSet(const Graph& G, EdgeSet removedEdges) {this->init(G, removedEdges);}
+	ComponentSet(const Graph& G_hat, GraphCopySimple& G, EdgeSet removedEdges) {this->init(G_hat, G, removedEdges);}
 
-	void init(const Graph& G, EdgeSet removedEdges) ;
+	void init(const Graph& G_hat, GraphCopySimple& G, EdgeSet removedEdges) ;
 
 	NodeArray<int> compIndices;
-	Array<Graph> components;
+	Array<GraphCopySimple> components;
 
 	Array<NodeArray<node>> nodeMap;
 
 	int compAmount;
+
+protected:
+	void determineComponents(const Graph& G_hat, GraphCopySimple& G, NodeArray<int>& compIndices, ArrayBuffer<node>& repr) ;
+
+	void constructInducedSubgraph(const Graph& G_hat, GraphCopySimple& G, NodeArray<int>& compIndices, GraphCopySimple& subGraph, node source) ;
 
 };
 
