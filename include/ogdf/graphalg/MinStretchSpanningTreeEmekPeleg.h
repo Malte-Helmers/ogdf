@@ -35,6 +35,8 @@
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/basic.h>
 #include <ogdf/graphalg/Ball.h>
+#include <ogdf/graphalg/ConnectivityPartition.h>
+#include <ogdf/graphalg/DistanceMetric.h>
 #include <ogdf/graphalg/TreeSpannerModule.h>
 
 #include <functional>
@@ -59,7 +61,7 @@ public:
 	//! Constructs a min stretch spanning tree for the graph #m_G,
 	//! Essentially solves the optimization problem by doing a binary search on an algortihm that solves the decision problem.
 	//! Should only fail if graph is invalid.
-	EdgeArray<bool>* constructMSST(const Graph& G_hat) ;
+	EdgeArray<bool> constructMSST(const Graph& G_hat) ;
 
 protected:
 

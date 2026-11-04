@@ -35,7 +35,8 @@
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/basic.h>
 #include <ogdf/basic/GraphSets.h>
-//#include <ogdf/basic/SortedSequence.h>
+#include <ogdf/graphalg/DistanceMetric.h>
+#include <ogdf/graphalg/ComponentSet.h>
 
 #include <functional>
 #include <utility>
@@ -57,7 +58,7 @@ class OGDF_EXPORT Ball {
 public :
 
 	//! Creates an instance of Ball.
-	Ball() {}
+	Ball() = default;
 
 	Ball(const Graph& G, const DistanceMetric& delta, int rho) {this->findRhoCenter(G, delta, rho);}
 
@@ -82,79 +83,6 @@ public :
 protected:
 
 	bool validRhoCenter(const Graph& G) const ;
-
-};
-
-class OGDF_EXPORT DistanceMetric {
-public:
-	DistanceMetric() {}
-
-	DistanceMetric(const Graph& G) {this->init(G);}
-
-	void init(const Graph& G) ;
-
-	//NodeArray<NodeArray<int>> distances;
-	NodeArray<NodeArray<node>> predecessors;
-
-	NodeArray<ArrayBuffer<ArrayBuffer<node>>> distanceMapArray;
-	ArrayBuffer<ArrayBuffer<node>> maxDistanceMap;
-
-	Array<node> nodesByMaxDistance;
-
-	int maxDistance;
-
-protected:
-
-	int better_bfs_SPAP
-	(
-		const Graph& G, 
-		NodeArray<NodeArray<node>>& predMatrix, 
-		NodeArray<ArrayBuffer<ArrayBuffer<node>>>& distMapArr, 
-		ArrayBuffer<ArrayBuffer<node>>& maxDistMap
-	) const ;
-
-	void better_bfs_SPSS
-	(
-		node s, 
-		const Graph& G, 
-		NodeArray<node>& predArr, // Saves the predecessor in Path from s to node with id corresponding to position in matrix
-		ArrayBuffer<ArrayBuffer<node>>& distMap // Saves a queue of nodes for each distance corresponding to the position in matrix
-	) const ;
-};
-
-class OGDF_EXPORT ComponentSet {
-public:
-	ComponentSet() {}
-
-	ComponentSet(const Graph& G, EdgeSet removedEdges) {this->init(G, removedEdges);}
-
-	void init(const Graph& G, EdgeSet removedEdges) ;
-
-	NodeArray<int> compIndices;
-	Array<Graph> components;
-
-	Array<NodeArray<node>> nodeMap;
-
-	int compAmount;
-
-};
-
-class OGDF_EXPORT ConnectivityPartition {
-public:
-	ConnectivityPartition() {}
-
-	ConnectivityPartition(const Graph& G) {this->init(G);}
-
-
-	void init(const Graph& G) ;
-
-
-	bool merge(edge e) ;
-
-	bool isHub(const Graph& G, ComponentSet& Components, node kernel) const ;
-
-	NodeArray<int> clusterIndices;
-	ArrayBuffer<NodeSet> clusters;
 
 };
 

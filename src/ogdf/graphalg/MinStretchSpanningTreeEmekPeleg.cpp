@@ -71,7 +71,8 @@ TreeSpannerModule::ReturnType MinStretchSpanningTreeEmekPeleg::execute() {
 	const Graph G_hat = m_GA->constGraph();
 
 	//		saving the solution as m_inTreeSpanner, the SolutionGraph as m_treeSpanner and the approximated min stretch as m_stretch.
-	m_inTreeSpanner = constructMSST(G_hat);
+	 F = constructMSST(G_hat);
+	 //m_inTreeSpanner...
 	//m_treeSpanner = ...
 	//m_stretch = ...
 	return TreeSpannerModule::ReturnType::Feasible; // it's within O(log n) of the optimal solution
@@ -83,7 +84,7 @@ void MinStretchSpanningTreeEmekPeleg::init(const GraphAttributes& GA, GraphCopyS
 }
 */
 
-EdgeArray<bool>* MinStretchSpanningTreeEmekPeleg::constructMSST(const Graph& G_hat) {
+EdgeArray<bool> MinStretchSpanningTreeEmekPeleg::constructMSST(const Graph& G_hat) {
 	F.init(G_hat, false);
 	F_alt.init(G_hat);
 
@@ -124,7 +125,7 @@ EdgeArray<bool>* MinStretchSpanningTreeEmekPeleg::constructMSST(const Graph& G_h
 		OGDF_ASSERT(T_hat.valid());
 #endif
 
-	return &T_hat;
+	return T_hat;
 }
 
 bool MinStretchSpanningTreeEmekPeleg::constructTree(const Graph& G, int rho, const DistanceMetric& delta) {
