@@ -61,15 +61,6 @@ public:
 	//! Should only fail if graph is invalid.
 	EdgeArray<bool>* constructMSST(const Graph& G_hat) ;
 
-	//! Returns a pointer to the associated graph.
-	//const GraphCopySimple* getGraph() const { return (m_G); }
-
-	//! Sets the associated graph.
-	//void setGraph(GraphCopySimple& G) {
-	//	OGDF_ASSERT(!G.empty());
-	//	*m_G = G;
-	//}
-
 protected:
 
 	TreeSpannerModule::ReturnType execute() override ;
@@ -78,10 +69,10 @@ protected:
 
 	//! Recursive function that tries to construct an MSST for a given p := 2 * stretch
 	//! Can fail if the given p is smaller than twice the graph's #m_G stretch
-	bool constructTree(const Graph& G, int rho) ;
+	bool constructTree(const Graph& G, int rho, const DistanceMetric& delta) ;
 
 	//! Recursive function that tries to construct an MSST for a given p := 2 * stretch
-	EdgeArray<bool> constructLocalTree(const Graph& G, node u, int rho, Array<NodeArray<bool>>& Clusters);
+	EdgeArray<bool> constructLocalTree(const Graph& G, node u, int rho, const DistanceMetric& delta);
 
 	using TreeSpannerModule::assertTimeLeft;
 	using TreeSpannerModule::m_GA;
@@ -90,11 +81,9 @@ protected:
 	using TreeSpannerModule::m_inTreeSpanner;
 private:
 	//		Vars for Solution
-	EdgeArray<bool>* F; //!< saves the Solution for the current rho.
-	Ball B;
-	DistanceMetric delta;
+	EdgeArray<bool> F; //!< saves the Solution for the current rho.
+	EdgeSet F_alt; //may be better than EdgeArray
 	ConnectivityPartition P;
-	ComponentSet Components;
 
 };
 
