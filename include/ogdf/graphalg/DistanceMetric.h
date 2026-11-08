@@ -77,6 +77,9 @@ protected:
 		NodeArray<node>& predArr, // Saves the predecessor in Path from s to node with id corresponding to position in matrix
 		ArrayBuffer<ArrayBuffer<node>>& distMap // Saves a queue of nodes for each distance corresponding to the position in matrix
 	) const ;
+
+public:
+	void print() ;
 };
 
 }

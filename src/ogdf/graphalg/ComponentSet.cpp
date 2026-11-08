@@ -59,7 +59,7 @@ void ComponentSet::init(const Graph& G_hat, GraphCopySimple& G, EdgeSet removedE
 	}
 	
 	//compAmount = connectedComponents(G, compIndices, nullptr, &repr);
-	determineComponents(G_hat, G, compIndices, repr);
+	compAmount = determineComponents(G_hat, G, compIndices, repr);
 	
 	components.init(compAmount);
 	//nodeMap.init(compAmount);
@@ -70,18 +70,19 @@ void ComponentSet::init(const Graph& G_hat, GraphCopySimple& G, EdgeSet removedE
 		//embedder::ConnectedSubgraph<int>::call(G, components[i], repr[i], nodeMap[i]);
 		constructInducedSubgraph(G_hat, G, compIndices, components[i], repr[i]);
 	}
+
 }
 
-void ComponentSet::determineComponents(const Graph& G_hat, GraphCopySimple& G, NodeArray<int>& compIndices, ArrayBuffer<node>& repr) {
-	compIndices.init(G_hat, -1);
+int ComponentSet::determineComponents(const Graph& G_hat, GraphCopySimple& G, NodeArray<int>& compInd, ArrayBuffer<node>& repr) const {
+	compInd.init(G_hat, -1);
 	repr.init(G.numberOfNodes());
 
 	int compAmnt = 0;
 
 	for (node u : G.nodes) {
-		if (compIndices[G.original(u)] == -1) {
+		if (compInd[G.original(u)] == -1) {
 
-			compIndices[G.original(u)] = compAmnt;
+			compInd[G.original(u)] = compAmnt;
 			repr.push(G.original(u));
 
 			//simple and naive impl through bfs
@@ -91,8 +92,8 @@ void ComponentSet::determineComponents(const Graph& G_hat, GraphCopySimple& G, N
 				node w = bfs.popFrontRet();
 				for (adjEntry adj : w->adjEntries) {
 					node v = adj->twinNode();
-					if (compIndices[G.original(v)] == -1) {
-						compIndices[G.original(v)] = compAmnt;
+					if (compInd[G.original(v)] == -1) {
+						compInd[G.original(v)] = compAmnt;
 						bfs.pushBack(v);
 					}
 				}
@@ -101,13 +102,15 @@ void ComponentSet::determineComponents(const Graph& G_hat, GraphCopySimple& G, N
 			compAmnt++;
 		}
 	}
+
+	return compAmnt;
 }
 
-void ComponentSet::constructInducedSubgraph(const Graph& G_hat, GraphCopySimple& G, NodeArray<int>& compIndices, GraphCopySimple& subGraph, node source) {
+void ComponentSet::constructInducedSubgraph(const Graph& G_hat, GraphCopySimple& G, NodeArray<int>& compInd, GraphCopySimple& subGraph, node source) const {
 	subGraph.clear();
 	subGraph.setOriginalGraph(G_hat);
 
-	int compIndex = compIndices[source];
+	int compIndex = compInd[source];
 
 	//simple and naive impl through bfs
 	SListPure<node> bfs;
@@ -123,7 +126,7 @@ void ComponentSet::constructInducedSubgraph(const Graph& G_hat, GraphCopySimple&
 		for (adjEntry adj : w->adjEntries) {
 			node v = adj->twinNode();
 			edge e = adj->theEdge();
-			if (compIndices[v] == compIndex && !markEdge[e]) {
+			if (compInd[v] == compIndex && !markEdge[e]) {
 
 				if (!markNode[v]) {
 
@@ -138,5 +141,20 @@ void ComponentSet::constructInducedSubgraph(const Graph& G_hat, GraphCopySimple&
 		}
 	}
 }
+
+	void ComponentSet::print() {
+#ifdef OGDF_DEBUG
+		std::cout << "ComponentSet with " << compAmount << " Components:" << std::endl;
+		for (node v : compIndices.graphOf()->nodes) {
+			std::cout << "Node " << v << " is in Component " << compIndices[v] << std::endl;
+		}
+		for (int i = 0; i < components.size(); i++) {
+			std::cout << "Component " << i << " has the following edges:" << std::endl;
+			for (edge e : components[i].edges) {
+				std::cout << "edge " << e->source()->index() << " - " << e->target()->index() << std::endl;
+			}
+		}
+#endif
+	}
 
 }

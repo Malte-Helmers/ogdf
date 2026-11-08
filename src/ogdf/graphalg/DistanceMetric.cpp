@@ -83,33 +83,6 @@ void DistanceMetric::init(const Graph& G) {
 			j++;
 		}
 	}
-
-#ifdef OGDF_DEBUG
-	std::cout << "Max Max Distance: " << maxDistance <<"; Shortest Distances in G:" << std::endl;
-	for (int i = 0; i < maxDistanceMap.size(); i++) {
-		std::cout << "Max Distance "<< i << ": {" << std::endl << "	";
-		for (node v : maxDistanceMap[i]) {
-			std::cout << "Source Node "<< v->index() << ": [" << std::endl << "		";
-			for (int j = 0; j < distanceMapArray[v].size(); j++) {
-				std::cout << "dest-nodes at dist "<< j << ": { ";
-				for (node u : distanceMapArray[v][j]) {
-					std::cout << u->index() << " (pre: " << predecessors[v][u]->index() << "), ";
-				}
-				std::cout << "}" << std::endl << "		";
-			}
-			std::cout << "]" << std::endl << "	";
-
-		}
-		std::cout << "}" << std::endl;
-	}
-
-	std::cout << "All Nodes, in order of their Max Distance:" << std::endl;
-	for (node v : nodesByMaxDistance) {
-		std::cout << "Node "<< v->index() << ", ";
-	}
-	std::cout << std::endl;
-#endif
-
 }
 
 int DistanceMetric::better_bfs_SPAP(const Graph& G, NodeArray<NodeArray<node>>& predMatrix,
@@ -168,5 +141,34 @@ void DistanceMetric::better_bfs_SPSS(node s, const Graph& G,
 		}
 	}
 }
+
+void DistanceMetric::print() {
+#ifdef OGDF_DEBUG
+	std::cout << "Max Max Distance: " << maxDistance <<"; Shortest Distances in Graph:" << std::endl;
+	for (int i = 0; i < maxDistanceMap.size(); i++) {
+		std::cout << "Max Distance "<< i << ": {" << std::endl << "	";
+		for (node v : maxDistanceMap[i]) {
+			std::cout << "Source Node "<< v->index() << ": [" << std::endl << "		";
+			for (int j = 0; j < distanceMapArray[v].size(); j++) {
+				std::cout << "dest-nodes at dist "<< j << ": { ";
+				for (node u : distanceMapArray[v][j]) {
+					std::cout << u->index() << " (pre: " << predecessors[v][u]->index() << "), ";
+				}
+				std::cout << "}" << std::endl << "		";
+			}
+			std::cout << "]" << std::endl << "	";
+
+		}
+		std::cout << "}" << std::endl;
+	}
+
+	std::cout << "All Nodes, in order of their Max Distance:" << std::endl;
+	for (node v : nodesByMaxDistance) {
+		std::cout << "Node "<< v->index() << ", ";
+	}
+	std::cout << std::endl;
+#endif
+}
+
 
 }

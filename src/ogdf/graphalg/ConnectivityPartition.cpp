@@ -50,8 +50,8 @@
 namespace ogdf {
 
 void ConnectivityPartition::init(const Graph& G) {
-	clusterIndices = NodeArray<int>(G);
-	clusters = ArrayBuffer<NodeSet>(G.numberOfNodes(), false);
+	clusterIndices = NodeArray<int>(G, -1);
+	clusters = ArrayBuffer<NodeSet>(G.numberOfNodes(),false);
 
 	for (int i = 0; i < G.numberOfNodes();i++) { //to do maybe optimise, idk.
 		clusters.push(NodeSet(G));
@@ -69,18 +69,29 @@ bool ConnectivityPartition::merge(edge e) {
 	int sourceIndex = clusterIndices[e->source()];
 	int targetIndex = clusterIndices[e->target()];
 
+	//std::cout << "Merge for Edge " << e->source()->index() << "-" << e->target()->index() << ", with Clusters " << sourceIndex << "-" << targetIndex << std::endl;
+
 	if (sourceIndex == targetIndex) {
 		return false;
 	}
 
-	clusterIndices[e->target()] = sourceIndex;
+	for (node v : clusterIndices.graphOf()->nodes) { // to do: optimise
+		if (clusterIndices[v] == targetIndex) {
+			clusterIndices[v] = sourceIndex;
+		}
+		if (clusterIndices[v] > targetIndex) {
+			clusterIndices[v] -= 1;
+		}
+		
+	}
 
 	for (node v : clusters[targetIndex]) {
 		clusters[sourceIndex].insert(v);
 	}
 
 	//to do: maybe have clusters organized by distance to rho-center, then this step'd be easier, but it'd need to be reSorted for each rho-center.
-	ArrayBuffer<int> removedCluster(1, targetIndex);
+	ArrayBuffer<int> removedCluster(1);
+	removedCluster.push(targetIndex);
 	clusters.leftShift(removedCluster);
 
 	return true;
@@ -103,6 +114,18 @@ bool ConnectivityPartition::isHub(const Graph& G, ComponentSet& Components, node
 	}
 
 	return true;
+}
+
+void ConnectivityPartition::print() {
+#ifdef OGDF_DEBUG
+	std::cout << "Connectivity Partition with " << clusters.size() << " Clusters:" << std::endl;
+	for (int i = 0; i < clusters.size(); i++) {
+		std::cout << "Cluster " << i << "/" << clusters.size()-1 << ", with size " << clusters[i].size() << std::endl;
+			for (node v : clusters[i]) {
+				std::cout << "Node " << v->index() << " with ClusterIndex " << clusterIndices[v] << std::endl;
+			}
+	}
+#endif
 }
 
 }

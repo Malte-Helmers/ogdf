@@ -32,6 +32,7 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphCopy.h>
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/basic.h>
 #include <ogdf/basic/GraphSets.h>
@@ -78,11 +79,19 @@ public :
 
 	ComponentSet decomposedGraph;
 
-	node rhoCenter;
+	int radius;
+
+	node centerNode;
+
+	bool centerNodeIsRhoCenter;
 
 protected:
 
 	bool validRhoCenter(const Graph& G_hat, GraphCopySimple& G) const ;
+
+public:
+
+	void print() ;
 
 };
 

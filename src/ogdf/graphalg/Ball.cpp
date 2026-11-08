@@ -53,14 +53,16 @@ bool Ball::findRhoCenter(const Graph& G_hat, GraphCopySimple& G, const DistanceM
 
 	bool found = false;
 
-	for (int i = 0; i < G.numberOfNodes() && !found; i++) {
-		node u = delta.nodesByMaxDistance[i];
+	for (int i = 0; i < G_hat.numberOfNodes() && !found; i++) {
+		node u = delta.nodesByMaxDistance[i]; // sometimes a better stretch can be achieved through another rho-center. maybe it could be worth it to remember and try out other rho-centers as well for the final valid rho.
+		if (G.copy(u) != nullptr) { // maybe optimisable? instead of going through G_hat's nodes and checking which are in G, maybe just going through G is possible, but maybe not in combination with using delta for optimisation.
+			init(G_hat, G, delta, rho, u);
 
-		init(G, delta, rho, u);
-
-		if (validRhoCenter(G)) {
-			rhoCenter = u;
-			found = true;
+			if (validRhoCenter(G_hat, G)) {
+				OGDF_ASSERT(centerNode == u);
+				centerNodeIsRhoCenter = true;
+				found = true;
+			}
 		}
 	}
 
@@ -68,26 +70,32 @@ bool Ball::findRhoCenter(const Graph& G_hat, GraphCopySimple& G, const DistanceM
 }
 
 void Ball::init(const Graph& G_hat, GraphCopySimple& G, const DistanceMetric& delta, int rho, node u) {
-	internalNodes.init(G, false);
-	//internalEdges.init(G, false);
+	radius = rho;
+	centerNode = u;
+	centerNodeIsRhoCenter = false;
 
-	intEdgeSet.init(G);
+	internalNodes.init(G_hat, false);
+	//internalEdges.init(G_hat, false);
+
+	intEdgeSet.init(G_hat);
 	intEdgeSet.clear();
 
 	for (int i = 0; i <= rho && i < delta.distanceMapArray[u].size(); i++) {
 		for (node v : delta.distanceMapArray[u][i]) {
-			internalNodes[v] = true;
+			if (G.copy(v) != nullptr) {
+				internalNodes[v] = true;
+			}
 		}
 	}
 
-	for (edge e : G.edges) { // to do: optimize so that it doesn't iterate through every edge for this, may need to change DistanceMetric to track edges for this... Or maybe I can use destnode as source node and search for destnode with dist 1 to find edges, maybe in practise too slow
+	for (edge e : G_hat.edges) { // to do: optimize so that it doesn't iterate through every edge for this, may need to change DistanceMetric to track edges for this... Or maybe I can use destnode as source node and search for destnode with dist 1 to find edges, maybe in practise too slow
 		if (internalNodes[e->source()] && internalNodes[e->target()]) {
 			//internalEdges[e] = true;
 			intEdgeSet.insert(e);
 		}
 	}
 
-	decomposedGraph.init(G, intEdgeSet);
+	decomposedGraph.init(G_hat, G, intEdgeSet);
 }
 
 bool Ball::validRhoCenter(const Graph& G_hat, GraphCopySimple& G) const {
@@ -101,6 +109,24 @@ bool Ball::validRhoCenter(const Graph& G_hat, GraphCopySimple& G) const {
 		}
 	}
 	return true;
+}
+
+void Ball::print() {
+#ifdef OGDF_DEBUG
+	std::cout << "Ball with radius " << radius << ((centerNodeIsRhoCenter) ? " and Rho-Center " : " and center-node ") << centerNode->index() << ":" << std::endl;
+	std::cout << "Internal Nodes are:" << std::endl;
+	for (node v : internalNodes.graphOf()->nodes) {
+		if (internalNodes[v]) {
+			std::cout << "Node " << v->index() << " with Edges to ";
+			for (edge e : intEdgeSet) {
+				if (e->source() == v) {
+					std::cout << "Target-Node " << e->target()->index() << ", ";
+				}
+			}
+			std::cout << std::endl;
+		}
+	}
+#endif
 }
 
 }

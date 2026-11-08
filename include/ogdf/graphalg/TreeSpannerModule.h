@@ -43,6 +43,10 @@
 #include <ogdf/basic/basic.h>
 #include <ogdf/graphalg/ShortestPathAlgorithms.h>
 
+#include <ogdf/energybased/FMMMLayout.h>
+#include <ogdf/energybased/fmmm/FMMMOptions.h>
+#include <ogdf/fileformats/GraphIO.h>
+
 #include <cstdint>
 #include <string>
 
@@ -190,47 +194,152 @@ public:
 	 */
 	static bool isMultiplicativeTreeSpanner(const GraphAttributes& GA,
 		const GraphCopySimple& treeSpanner, int stretch) {
-	const Graph& G = GA.constGraph();
-	OGDF_ASSERT(&(treeSpanner.original()) == &G);
+		const Graph& G = GA.constGraph();
+		OGDF_ASSERT(&(treeSpanner.original()) == &G);
 
-	if (G.numberOfNodes() != treeSpanner.numberOfNodes() || treeSpanner.numberOfEdges() != G.numberOfNodes() - 1 ) {
-		return false;
-	}
-
-	NodeArray<NodeArray<int>> originalDistances(G);
-	EdgeArray<int> weights(G);
-	for (edge e : G.edges) {
-		weights[e] = 1;
-	}
-	dijkstra_SPAP(G, originalDistances, weights);
-
-	NodeArray<NodeArray<int>> newDistances(treeSpanner);
-	apspTreeSpanner(treeSpanner, newDistances);
-
-	EpsilonTest m_eps;
-	for (edge e : G.edges) {
-		node u = e->source();
-		node v = e->target();
-		int originalDistance = originalDistances[u][v];
-		int newDistance = newDistances[treeSpanner.copy(u)][treeSpanner.copy(v)];
-		if (m_eps.greater(static_cast<double>(newDistance), static_cast<double>(stretch * originalDistance))) {
+		if (G.numberOfNodes() != treeSpanner.numberOfNodes() || treeSpanner.numberOfEdges() != G.numberOfNodes() - 1 ) {
 			return false;
 		}
-	}
 
-	return true;
-}
+		NodeArray<NodeArray<int>> originalDistances(G);
+		EdgeArray<int> weights(G);
+		for (edge e : G.edges) {
+			weights[e] = 1;
+		}
+		dijkstra_SPAP(G, originalDistances, weights);
+
+		NodeArray<NodeArray<int>> newDistances(treeSpanner);
+		apspTreeSpanner(treeSpanner, newDistances);
+
+		EpsilonTest m_eps;
+		for (edge e : G.edges) {
+			node u = e->source();
+			node v = e->target();
+			int originalDistance = originalDistances[u][v];
+			int newDistance = newDistances[treeSpanner.copy(u)][treeSpanner.copy(v)];
+			if (m_eps.greater(static_cast<double>(newDistance), static_cast<double>(stretch * originalDistance))) {
+				return false;
+			}
+		}
+
+		return true;
+	}
 
 	/**
 	 * Calculates an all-pair shortest-path on \p treeSpanner
 	 */
 	static void apspTreeSpanner(const GraphCopySimple& treeSpanner, NodeArray<NodeArray<int>>& shortestPathMatrix) {
-	EdgeArray<int> weights(treeSpanner);
-	for (edge e : treeSpanner.edges) {
-		weights[e] = 1;
+		EdgeArray<int> weights(treeSpanner);
+		for (edge e : treeSpanner.edges) {
+			weights[e] = 1;
+		}
+		dijkstra_SPAP(treeSpanner, shortestPathMatrix, weights);
 	}
-	dijkstra_SPAP(treeSpanner, shortestPathMatrix, weights);
+
+	int calculateStretch(const GraphCopySimple& treeSpanner, EdgeArray<bool>& inTreeSpanner) {
+		int stretch = 1;
+		NodeArray<NodeArray<int>> distances(treeSpanner);
+		for (node v : treeSpanner.nodes) {
+			distances[v].init(treeSpanner);
+			distances[v][v] = 0;
+		}
+
+		apspTreeSpanner(treeSpanner, distances);
+		for (edge e : treeSpanner.getOriginalGraph()->edges) {
+			if (!inTreeSpanner[e]) {
+				int dist = distances[treeSpanner.copy(e->source())][treeSpanner.copy(e->target())];
+				if (dist > stretch) {
+					stretch = dist;
+				}
+			}
+		}
+
+		return stretch;
+	}
+
+
+	void printEdges(EdgeArray<bool>& edgeArray, string name) {
+#ifdef OGDF_DEBUG
+	std::cout << "Edges in " << name << ":" << std::endl;
+	for (edge e : edgeArray.graphOf()->edges) {
+		std::cout << "edge " << e->source()->index() << " - " << e->target()->index() << ": " << edgeArray[e] << std::endl;
+	}
+#endif
 }
+
+	void printGraph(const Graph& G_hat, string name) {
+#ifdef OGDF_DEBUG
+		std::cout << "Graph " << name << ":" << std::endl;
+
+		std::cout << "it has " << G_hat.numberOfNodes() << " Nodes:" << std::endl;
+		for (node v : G_hat.nodes) {
+			std::cout << "Node " << v->index() << ", ";
+		}
+		std::cout << std::endl;
+
+		std::cout << "and " << G_hat.numberOfEdges() << " Edges:" << std::endl;
+		for (edge e : G_hat.edges) {
+			std::cout << "edge " << e->source()->index() << " - " << e->target()->index() << ", ";
+		}
+		std::cout << std::endl;
+#endif
+	}
+
+	void printGraph(GraphCopySimple& G, string name) {
+#ifdef OGDF_DEBUG
+		std::cout << "GraphCopy " << name << ":" << std::endl;
+
+		std::cout << "it has " << G.numberOfNodes() << "/" << G.getOriginalGraph()->numberOfNodes() << " Nodes:" << std::endl;
+		for (node v : G.nodes) {
+			std::cout << "Node " << v->index() << " (" << G.original(v)->index() << "), ";
+		}
+		std::cout << std::endl;
+
+		std::cout << "and " << G.numberOfEdges() << "/" << G.getOriginalGraph()->numberOfEdges() << " Edges:" << std::endl;
+		for (edge e : G.edges) {
+			std::cout << "edge " << e->source()->index() << " - " << e->target()->index() << " (" << G.original(e)->source()->index() << " - " << G.original(e)->target()->index() << "), ";
+		}
+		std::cout << std::endl;
+#endif
+	}
+
+	bool drawGraph(const Graph& G_hat, string name, int id = 0) {
+		GraphAttributes GA(G_hat);
+
+		for (node v : G_hat.nodes) {
+			GA.width(v) = GA.height(v) = 5.0;
+		}
+
+		return drawGraph(GA, name, id);
+	}
+
+	bool drawGraph(GraphCopySimple& G, string name, int id = 0) {
+		GraphAttributes GA(G);
+
+		for (node v : G.nodes) {
+			GA.width(v) = GA.height(v) = 5.0;
+		}
+
+		return drawGraph(GA, name, id);
+	}
+
+	bool drawGraph(GraphAttributes& GA, string name, int id = 0) {
+#ifdef OGDF_DEBUG
+		GA.directed() = false;
+
+		string resultStr = "output-" + name  + "-" + to_string(id) + ".svg";
+
+		FMMMLayout myFmmm;
+
+		myFmmm.useHighLevelOptions(true);
+		myFmmm.unitEdgeLength(15.0);
+		myFmmm.newInitialPlacement(true);
+		myFmmm.qualityVersusSpeed(FMMMOptions::QualityVsSpeed::GorgeousAndEfficient);
+		myFmmm.call(GA);
+
+		return GraphIO::write(GA, resultStr, GraphIO::drawSVG);
+#endif
+	}
 
 };
 

@@ -32,6 +32,7 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphCopy.h>
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/basic.h>
 #include <ogdf/graphalg/Ball.h>
@@ -58,10 +59,12 @@ public:
 	//! @copydoc ogdf::TreeSpannerModule::preconditionsOk
 	virtual bool preconditionsOk(const GraphAttributes& GA, std::string& error) override ;
 
+	bool validStretch(const GraphCopySimple& treeSpanner, EdgeArray<bool>& inTreeSpanner) ;
+
 	//! Constructs a min stretch spanning tree for the graph #m_G,
 	//! Essentially solves the optimization problem by doing a binary search on an algortihm that solves the decision problem.
 	//! Should only fail if graph is invalid.
-	EdgeArray<bool> constructMSST(const Graph& G_hat) ;
+	void constructMSST(const Graph& G_hat, EdgeArray<bool>& T_hat) ;
 
 protected:
 
@@ -86,7 +89,6 @@ private:
 	EdgeArray<bool> F; //!< saves the Solution for the current rho.
 	EdgeSet F_alt; //may be better than EdgeArray
 	ConnectivityPartition P;
-
 };
 
 }

@@ -60,6 +60,8 @@ public:
 	NodeArray<int> clusterIndices;
 	ArrayBuffer<NodeSet> clusters;
 
+	void print() ;
+
 };
 
 }

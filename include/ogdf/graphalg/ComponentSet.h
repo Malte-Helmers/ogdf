@@ -32,6 +32,7 @@
 #pragma once
 
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/GraphCopy.h>
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/basic.h>
 #include <ogdf/basic/GraphSets.h>
@@ -53,14 +54,18 @@ public:
 	NodeArray<int> compIndices;
 	Array<GraphCopySimple> components;
 
-	Array<NodeArray<node>> nodeMap;
+	//Array<NodeArray<node>> nodeMap;
 
 	int compAmount;
 
 protected:
-	void determineComponents(const Graph& G_hat, GraphCopySimple& G, NodeArray<int>& compIndices, ArrayBuffer<node>& repr) ;
+	int determineComponents(const Graph& G_hat, GraphCopySimple& G, NodeArray<int>& compInd, ArrayBuffer<node>& repr) const ;
 
-	void constructInducedSubgraph(const Graph& G_hat, GraphCopySimple& G, NodeArray<int>& compIndices, GraphCopySimple& subGraph, node source) ;
+	void constructInducedSubgraph(const Graph& G_hat, GraphCopySimple& G, NodeArray<int>& compInd, GraphCopySimple& subGraph, node source) const ;
+
+public:
+
+	void print() ;
 
 };
 
