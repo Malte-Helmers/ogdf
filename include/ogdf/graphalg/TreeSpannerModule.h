@@ -1,5 +1,5 @@
 /** \file
- * \brief basic module for treespanner modules
+ * \brief basic module for treespanners alogrithms
  * 
  * heavily derived from ogdf::spannerModule.
  *

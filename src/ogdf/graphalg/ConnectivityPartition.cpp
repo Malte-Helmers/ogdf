@@ -1,7 +1,7 @@
 /** \file
- * \brief <<DESCRIBE WHAT IS IMPLEMENTED>>
+ * \brief Implementation of a simple Connectivity Partition.
  *
- * \author <<AUTHOR NAMES (RESPONSIBLE PERSONS)>>
+ * \author Malte Helmers
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).

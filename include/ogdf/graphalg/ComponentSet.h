@@ -1,7 +1,7 @@
 /** \file
- * \brief <<DESCRIBE WHAT IS DECLARED>>
+ * \brief Declaration of a simple and naive Component-Set.
  *
- * \author <<AUTHOR NAMES (RESPONSIBLE PERSONS)>>
+ * \author Malte Helmers
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).

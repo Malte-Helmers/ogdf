@@ -1,5 +1,5 @@
 /** \file
- * \brief Declaration of a naive algorithm to calculate a Ball; ogdf::Ball .
+ * \brief Declaration of a naive algorithm to calculate a Ball-SubGraph; ogdf::Ball .
  *
  * \author Malte Helmers
  *

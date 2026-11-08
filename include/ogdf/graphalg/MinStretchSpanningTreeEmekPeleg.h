@@ -1,5 +1,5 @@
 /** \file
- * \brief Declaration and Implementation of Emek and Peleg's approximation algorithm to calculate a Min Stretch Spanning Tree; ogdf::MinimumStretchSpanningTreeEmekPeleg .
+ * \brief Declaration of Emek and Peleg's approximation algorithm to calculate a Min Stretch Spanning Tree; ogdf::MinimumStretchSpanningTreeEmekPeleg .
  *
  * \author Malte Helmers
  *

@@ -1,5 +1,5 @@
 /** \file
- * \brief An exact algorithm that calculates a Minimum Stretch Spanning Tree by using Multicommodity Flow.
+ * \brief Implementation of an exact algorithm that calculates a Minimum Stretch Spanning Tree by using Multicommodity Flow.
  *
  * \author Malte Helmers
  *
