@@ -73,8 +73,6 @@ TreeSpannerModule::ReturnType MinStretchSpanningTreeEmekPeleg::execute() {
 	//		saving the solution as m_inTreeSpanner, the SolutionGraph as m_treeSpanner and the lower Bound kappa for the min stretch is already saved as m_stretch.
 	constructMSST(G_hat, *m_inTreeSpanner);
 
-	//printEdges(*m_inTreeSpanner,"m_inTreeSpanner");
-
 	m_treeSpanner->clear();
 	m_treeSpanner->setOriginalGraph(G_hat);
 	for (node n : G_hat.nodes) {
@@ -88,43 +86,37 @@ TreeSpannerModule::ReturnType MinStretchSpanningTreeEmekPeleg::execute() {
 	}
 
 #ifdef OGDF_DEBUG
+	printEdges(*m_inTreeSpanner,"InTreeSpanner");
+	drawGraph(*m_treeSpanner, "treeSpanner_test");
+
 	GraphAttributes GA_(G_hat);
 	OGDF_ASSERT(validStretch(*m_treeSpanner, *m_inTreeSpanner));
 	OGDF_ASSERT(isMultiplicativeTreeSpanner(GA_, *m_treeSpanner, calculateStretch(*m_treeSpanner, *m_inTreeSpanner)));
 #endif
 
-	//DistanceMetric delta = DistanceMetric(m_treeSpanner);
-	//m_stretch = delta.maxDistance;
 	return TreeSpannerModule::ReturnType::Feasible; // it's within O(log n) of the optimal solution
 }
 
-	bool MinStretchSpanningTreeEmekPeleg::validStretch(const GraphCopySimple& treeSpanner, EdgeArray<bool>& inTreeSpanner) {
-		int kappa = m_stretch;
-		int approxStretch = calculateStretch(treeSpanner, inTreeSpanner);
-		int upperBoundary = ceil( 6 * kappa * log2(treeSpanner.numberOfNodes()) );
+bool MinStretchSpanningTreeEmekPeleg::validStretch(const GraphCopySimple& treeSpanner, EdgeArray<bool>& inTreeSpanner) {
+	int kappa = m_stretch;
+	int approxStretch = calculateStretch(treeSpanner, inTreeSpanner);
+	int upperBoundary = ceil( 6 * kappa * log2(treeSpanner.numberOfNodes()) );
 
 #ifdef OGDF_DEBUG
-		std::cout << "Kappa: " << kappa << ", approxStretch: " << approxStretch << ", ceiling of 6*kappa*log2(n) = " << upperBoundary << std::endl; 
+	std::cout << "Kappa: " << kappa << ", approxStretch: " << approxStretch << ", ceiling of 6*kappa*log2(n) = " << upperBoundary << std::endl; 
 #endif
 
-		return approxStretch <= upperBoundary;
-	}
-
-
-/*
-void MinStretchSpanningTreeEmekPeleg::init(const GraphAttributes& GA, GraphCopySimple& treeSpanner, EdgeArray<bool>& inTreeSpanner) {
-	TreeSpannerModule::init(GA, treeSpanner, inTreeSpanner);
+	return approxStretch <= upperBoundary;
 }
-*/
 
 void MinStretchSpanningTreeEmekPeleg::constructMSST(const Graph& G_hat, EdgeArray<bool>& T_hat) {
 	F.init(G_hat, false);
-	F_alt.init(G_hat);
 
 	T_hat.init();
 
 
 	P = ConnectivityPartition(G_hat);
+	P.print();
 
 	DistanceMetric delta = DistanceMetric(G_hat);
 
@@ -138,14 +130,13 @@ void MinStretchSpanningTreeEmekPeleg::constructMSST(const Graph& G_hat, EdgeArra
 	for (int kappa = floor((L+R)/2); L <= kappa && kappa <= R; kappa = floor((L+R)/2)) { // Binary Search
 
 #ifdef OGDF_DEBUG
-		//std::cout << "L: " << L << " Kappa: " << kappa << " R: " << R << std::endl;
+		std::cout << "L: " << L << " Kappa: " << kappa << " R: " << R << std::endl;
 #endif
 
 		assertTimeLeft();
 
 		//	Reinitialize P and F
 		F.init(G_hat, false); //uses Global var F as described by Emek & Peleg
-		F_alt.clear();
 		P.init(G_hat);
 
 		G.init(G_hat);
@@ -200,8 +191,6 @@ bool MinStretchSpanningTreeEmekPeleg::constructTree(const Graph& G_hat, GraphCop
 	for (edge e : G_hat.edges) {	//merge F with T_Local. to do: make more efficient: would be redundant if i just used F in constructLocalTree
 		F[e] |= T_local[e];
 	}
-	//printEdges(T_local,"T_local after return");
-	//printEdges(F,"F");
 
 	// End of Step 2
 
@@ -234,7 +223,7 @@ EdgeArray<bool> MinStretchSpanningTreeEmekPeleg::constructLocalTree(const Graph&
 	// Does a variation of Dijkstra's Algorithm:
 	for (int i = 0; i <= (int)(3/2)*rho && i < delta.distanceMapArray[u].size(); i++) {
 		for (node v : delta.distanceMapArray[u][i]) {
-			if (G.copy(v) != nullptr && P.clusterIndices[v] != P.clusterIndices[u]) { // Checks if v is not in Kernel Cluster and if v is in G (there may be a more optimal way for checking this.)
+			if (G.copy(v) != nullptr && P.getIndex(v) != P.getIndex(u)) { // Checks if v is not in Kernel Cluster and if v is in G (there may be a more optimal way for checking this.)
 				edge lastEdge = G_hat.searchEdge(delta.predecessors[u][v], v); // may be optimised by saving edges in delta, idk... what even is the runtime?
 				P.merge(lastEdge);
 				T_local[lastEdge] = true;
@@ -243,8 +232,11 @@ EdgeArray<bool> MinStretchSpanningTreeEmekPeleg::constructLocalTree(const Graph&
 			}
 		}
 	}
-	//P.print();
-	//printEdges(T_local,"T_local");
+
+#ifdef OGDF_DEBUG
+	P.print();
+	printEdges(T_local,"T_local");
+#endif
 
 	return T_local;
 }

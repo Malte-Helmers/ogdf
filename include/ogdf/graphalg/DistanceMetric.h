@@ -42,26 +42,58 @@
 
 namespace ogdf {
 
+
+/**
+ * Constructs 5 variables related to the distances in a given weightless, undirected and connected Graph.
+ * 
+ * A NodeMatrix containing the Predecessors to the target node for a shortest path for each source node.
+ * 
+ * A Map-NodeArray containing the target nodes for a shortest path categorized by distance for each source node.
+ * 
+ * A Map containing the source nodes categorized by their max-distance.
+ * 
+ * An Array containg the source nodes sorted by their max-distance.
+ * 
+ * And the max-distance across the Graph
+ * 
+ * @ingroup graph-algs
+ */
 class OGDF_EXPORT DistanceMetric {
 public:
+
+	//! Creates a DistanceMetric
 	DistanceMetric() = default;
 
+	/**
+	 * Creates and constructs the DistanceMetric
+	 * \param G The Graph to determine the distances of
+	 */
 	DistanceMetric(const Graph& G) {this->init(G);}
 
+	/**
+	 * Re-Constructs the DistanceMetric
+	 * \param G The Graph to determine the distances of
+	 */
 	void init(const Graph& G) ;
 
-	//NodeArray<NodeArray<int>> distances;
-	NodeArray<NodeArray<node>> predecessors;
+	NodeArray<NodeArray<node>> predecessors; //!< A NodeMatrix containing the Predecessors to the target node for a shortest path for each source node.
 
-	NodeArray<ArrayBuffer<ArrayBuffer<node>>> distanceMapArray;
-	ArrayBuffer<ArrayBuffer<node>> maxDistanceMap;
+	NodeArray<ArrayBuffer<ArrayBuffer<node>>> distanceMapArray; //!< A Map-NodeArray containing the target nodes for a shortest path categorized by distance for each source node.
+	ArrayBuffer<ArrayBuffer<node>> maxDistanceMap; //!< A Map containing the source nodes categorized by their max-distance.
 
-	Array<node> nodesByMaxDistance;
+	Array<node> nodesByMaxDistance; //!< An Array containg the source nodes sorted by their max-distance.
 
-	int maxDistance;
+	int maxDistance; //!< The max-distance across the Graph
 
 protected:
 
+	/**
+	 * Does essentially the same as bfs_SPAP from ShortestPathAlgorithms.h, but saves the distances differently
+	 * \param G The Graph to determine the distances of
+	 * \param predMatrix Is Assigned the predecessor NodeMatrix
+	 * \param distMapArr Is Assigned the Map-NodeArray containing the target nodes for each distance for each source node.
+	 * \param maxDistMap Is Assigned the Map containing the node for each max distance.
+	 */
 	int better_bfs_SPAP
 	(
 		const Graph& G, 
@@ -70,6 +102,13 @@ protected:
 		ArrayBuffer<ArrayBuffer<node>>& maxDistMap
 	) const ;
 
+	/**
+	 * Does essentially the same as bfs_SPSS from ShortestPathAlgorithms.h, but saves the distances differently
+	 * \param s The source node to start bfs from
+	 * \param G The Graph to determine the distances of
+	 * \param predMatrix Is Assigned the predecessor NodeArray
+	 * \param distMapArr Is Assigned the Map containing the target node for each distance.
+	 */
 	void better_bfs_SPSS
 	(
 		node s, 
@@ -79,6 +118,13 @@ protected:
 	) const ;
 
 public:
+
+	/**
+	 * Prints: The Graph's Max-Distance, and for each Source-Node's Max Distance: the Source Node,
+	 * the target Nodes in each of the source node's distances and their predecessor.
+	 * 
+	 * Also prints a list of the source nodes sorted by max distance.
+	 */
 	void print() ;
 };
 

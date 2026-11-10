@@ -51,13 +51,6 @@ namespace ogdf {
 
 void DistanceMetric::init(const Graph& G) {
 
-	/*
-	NodeArray<NodeArray<int>> m_distMatrix(G);
-	for (node v : G.nodes) {
-		distMatrix[v].init(G);
-		distMatrix[v][v] = 0;
-	}*/
-
 	predecessors.init(G);
 	for (node v : G.nodes) {
 		predecessors[v].init(G);

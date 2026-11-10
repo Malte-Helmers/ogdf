@@ -236,6 +236,10 @@ public:
 		dijkstra_SPAP(treeSpanner, shortestPathMatrix, weights);
 	}
 
+	/**
+	 * Calculates the Stretch of \p treeSpanner
+	 * \returns Stretch of \p treeSpanner
+	 */
 	int calculateStretch(const GraphCopySimple& treeSpanner, EdgeArray<bool>& inTreeSpanner) {
 		int stretch = 1;
 		NodeArray<NodeArray<int>> distances(treeSpanner);
@@ -257,7 +261,11 @@ public:
 		return stretch;
 	}
 
-
+	/**
+	 * Prints edges in given \p edgeArray
+	 * \param edgeArray The EdgeArray to be printed
+	 * \param name The Name of the Array to be displayed above the printout
+	 */
 	void printEdges(EdgeArray<bool>& edgeArray, string name) {
 #ifdef OGDF_DEBUG
 	std::cout << "Edges in " << name << ":" << std::endl;
@@ -267,6 +275,11 @@ public:
 #endif
 }
 
+	/**
+	 * Prints the nodes and edges of the given \p Graph
+	 * \param G_hat The Graph to be printed
+	 * \param name The Name of the Graph to be displayed above the printout
+	 */
 	void printGraph(const Graph& G_hat, string name) {
 #ifdef OGDF_DEBUG
 		std::cout << "Graph " << name << ":" << std::endl;
@@ -285,6 +298,11 @@ public:
 #endif
 	}
 
+	/**
+	 * Prints the nodes and edges, aswell as their equivalents in the original, of the given \p GraphCopySimple
+	 * \param G The GraphCopy to be printed
+	 * \param name The Name of the GraphCopy to be displayed above the printout
+	 */
 	void printGraph(GraphCopySimple& G, string name) {
 #ifdef OGDF_DEBUG
 		std::cout << "GraphCopy " << name << ":" << std::endl;
@@ -303,6 +321,15 @@ public:
 #endif
 	}
 
+	/**
+	 * Draws the given \p Graph and saves it into a .svg-file named "Output-<name>-<id>.svg"
+	 * 
+	 * Edges are undirected
+	 * \param G_hat The Graph to be drawn
+	 * \param name The Name of the Graph
+	 * \param id An Identifier to easily differentiate multiple Drawings of the same Graph in different Stages (default 0)
+	 * \returns whether the Graph was drawn successfully
+	 */
 	bool drawGraph(const Graph& G_hat, string name, int id = 0) {
 		GraphAttributes GA(G_hat);
 
@@ -313,6 +340,15 @@ public:
 		return drawGraph(GA, name, id);
 	}
 
+	/**
+	 * Draws the given \p GraphCopySimple and saves it into a .svg-file named "Output-<name>-<id>.svg"
+	 * 
+	 * Edges are undirected
+	 * \param G_hat The Graph to be drawn
+	 * \param name The Name of the Graph
+	 * \param id An Identifier to easily differentiate multiple Drawings of the same Graph in different Stages (default 0)
+	 * \returns whether the Graph was drawn successfully
+	 */
 	bool drawGraph(GraphCopySimple& G, string name, int id = 0) {
 		GraphAttributes GA(G);
 
@@ -323,6 +359,15 @@ public:
 		return drawGraph(GA, name, id);
 	}
 
+	/**
+	 * Draws the given \p GraphAttributes and saves it into a .svg-file named "Output-<name>-<id>.svg"
+	 * 
+	 * Edges are undirected
+	 * \param G_hat The Graph to be drawn
+	 * \param name The Name of the Graph
+	 * \param id An Identifier to easily differentiate multiple Drawings of the same Graph in different Stages (default 0)
+	 * \returns whether the Graph was drawn successfully
+	 */
 	bool drawGraph(GraphAttributes& GA, string name, int id = 0) {
 #ifdef OGDF_DEBUG
 		GA.directed() = false;

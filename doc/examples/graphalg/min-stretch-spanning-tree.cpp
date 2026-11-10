@@ -36,9 +36,7 @@
 #include <ogdf/energybased/fmmm/FMMMOptions.h>
 #include <ogdf/fileformats/GraphIO.h>
 #include <ogdf/graphalg/MinStretchSpanningTreeEmekPeleg.h>
-//#include <ogdf/graphalg/MinStretchSpanningTreeMCF.h>
-//#include <ogdf/graphalg/TreeSpannerModule.h>
-//#include <ogdf/graphalg/ball.h>
+#include <ogdf/graphalg/MinStretchSpanningTreeMCF.h>
 #include <ogdf/graphalg/ShortestPathAlgorithms.h>
 
 #include <iostream>
@@ -64,12 +62,10 @@ int main(int argc, char *argv[]) { //Input: .gml of Graph.
 	// Initialize GA and set as undirected
 	GraphAttributes GA(G);
 	GA.directed() = false;
-	//const Graph Gc = GA.constGraph();
 	// End of GA Initialization
 
 
 	// Preprocess shortest distances between all node pairs using bfs: Runtime O(n²+nm) 
-	// To do: optimize runtime
 	/*NodeArray<NodeArray<int>> distance(Gc);
 	for (node v : Gc.nodes) {
 		distance[v].init(Gc);

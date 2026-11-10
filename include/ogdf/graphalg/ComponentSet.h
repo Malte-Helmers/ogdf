@@ -43,28 +43,72 @@
 
 namespace ogdf {
 
+/**
+ * Constructs a ComponentSet for a given GraphCopy and it's original Graph:
+ * 
+ * It first removes the specified Edges and then determines the connected Components through the leftover Edges.
+ * 
+ * The Vertices of these Components are then used to induce a Subgraph on the given original Graph for each Component and saved in a an Array.
+ * 
+ * This means that any Edges within a Component that got removed through the first Step get readded.
+ * 
+ * @ingroup graph-algs
+ */
 class OGDF_EXPORT ComponentSet {
 public:
+
+	//! Creates a ComponentSet
 	ComponentSet() = default;
 
+	/**
+	 * Creates and initializes a ComponentSet
+	 * \param G_hat The original Graph that is referenced by G and should be referenced by the components
+	 * \param G The Graph to determine the connected Components from
+	 * \param removedEdges The Edges in G_hat to remove from G to create the connected Components from
+	 */
 	ComponentSet(const Graph& G_hat, GraphCopySimple& G, EdgeSet removedEdges) {this->init(G_hat, G, removedEdges);}
 
+	/**
+	 * Re-Initializes the ComponentSet
+	 * \param G_hat The original Graph that is referenced by G and should be referenced by the components
+	 * \param G The Graph to determine the connected Components from
+	 * \param removedEdges The Edges in G_hat to remove from G to create the connected Components from
+	 */
 	void init(const Graph& G_hat, GraphCopySimple& G, EdgeSet removedEdges) ;
 
-	NodeArray<int> compIndices;
-	Array<GraphCopySimple> components;
+
+	NodeArray<int> compIndices; //!< NodeArray saving each node's connected Component's index
+	Array<GraphCopySimple> components; //!< Array saving the Subgraphs induced by the vertices of the components
+	int compAmount; //!< The Amount of Components
 
 	//Array<NodeArray<node>> nodeMap;
 
-	int compAmount;
-
 protected:
+
+	/**
+	 * Determines the Components of a given GraphCopy and saves index and Representative for the Original Graph's Nodes
+	 * \param G_hat The original Graph that is referenced by G and should be referenced by the components
+	 * \param G The Graph to determine the connected Components from
+	 * \param compInd Is assigned the Indices of the components for each of G_hat's nodes
+	 * \param repr Is assigned a node of G_hat contained in each of the components
+	 */
 	int determineComponents(const Graph& G_hat, GraphCopySimple& G, NodeArray<int>& compInd, ArrayBuffer<node>& repr) const ;
 
+	/**
+	 * Constructs the Subgraph induced by the vertices of a Component on G_hat
+	 * \param G_hat The original Graph that should be referenced by the components
+	 * \param G (Redundant. To Do: remove)
+	 * \param compInd Contains the Indices of the components for each of G_hat's nodes
+	 * \param subGraph Is assigned the vertex-induced Subgraph
+	 * \param source The node within the Component to start the bfs from
+	 */
 	void constructInducedSubgraph(const Graph& G_hat, GraphCopySimple& G, NodeArray<int>& compInd, GraphCopySimple& subGraph, node source) const ;
 
 public:
 
+	/**
+	 * Prints the amount of components, each Node in G with the index of its component, and the Edges of each Component
+	 */
 	void print() ;
 
 };

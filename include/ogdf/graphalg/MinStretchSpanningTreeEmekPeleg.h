@@ -59,24 +59,60 @@ public:
 	//! @copydoc ogdf::TreeSpannerModule::preconditionsOk
 	virtual bool preconditionsOk(const GraphAttributes& GA, std::string& error) override ;
 
+	/**
+	 * Calculates the stretch of the given Tree-Spanner and checks if it's within the allowed approximation ratio
+	 *
+	 * \param treeSpanner The TreeSpanner to check the stretch of
+	 * \param inTreeSpanner An EdgeArray containing the Edges of the original Graph used by the TreeSpanner
+	 * \returns if the calculated Stretch is within the approximation ratio of 6*kappa*log_2(n)
+	 */
 	bool validStretch(const GraphCopySimple& treeSpanner, EdgeArray<bool>& inTreeSpanner) ;
 
-	//! Constructs a min stretch spanning tree for the graph #m_G,
-	//! Essentially solves the optimization problem by doing a binary search on an algortihm that solves the decision problem.
-	//! Should only fail if graph is invalid.
+
+	/**
+	 * Constructs a min-stretch-spanning-tree for the given graph
+	 * 
+	 * Essentially solves the optimization problem by doing a binary search on an algortihm that solves the decision problem.
+	 * 
+	 * Should only fail if the given graph is invalid.
+	 * 
+	 * \param G_hat The Graph to construct a Min-Stretch Tree-Spanner for
+	 * \param T_hat Is assigned the Edges of G_hat that construct the finished TreeSpanner
+	 */
 	void constructMSST(const Graph& G_hat, EdgeArray<bool>& T_hat) ;
 
 protected:
 
+	//! @copydoc ogdf::TreeSpannerModule::execute
 	TreeSpannerModule::ReturnType execute() override ;
 
-	//void init(const GraphAttributes& GA, GraphCopySimple& treeSpanner, EdgeArray<bool>& inTreeSpanner) override ;
-
-	//! Recursive function that tries to construct an MSST for a given p := 2 * stretch
-	//! Can fail if the given p is smaller than twice the graph's #m_G stretch
+	/**
+	 * Recursive function that tries to construct an MSST for a given rho := 2 * assumedStretch
+	 * 
+	 * Can(!) fail if the given rho is smaller than twice the graph's Min-Stretch
+	 * 
+	 * Is guaranteed to solve the decision problem of finding a Tree-Spanner with a Stretch <= ceil(3*rho*log_2(n)), if rho/2 >= Min-Stretch
+	 * 
+	 * Sometimes solves the decision problem of finding a Tree-Spanner with a Stretch <= ceil(3*rho*log_2(n)), even if rho/2 < Min-Stretch
+	 *
+	 * \param G_hat The constant Original Graph referenced by G
+	 * \param G A Subgraph of G_hat (can be equal) to construct a Tree-Spanner for
+	 * \param rho Twice the Graph's assumed Stretch.
+	 * \param delta A DistanceMetric of the original Graph. Contains efficiently sorted APSP.
+	 * \returns true always if rho/2 >= Min-Stretch, and false sometimes if rho/2 < Min-Stretch
+	 */
 	bool constructTree(const Graph& G_hat, GraphCopySimple& G, int rho, const DistanceMetric& delta) ;
 
-	//! Recursive function that tries to construct an MSST for a given p := 2 * stretch
+	/**
+	 * Function that constructs a tree via Dijkstra-Variation on the Intersection of the external Edges of P and a Ball B_delta(u, 3/2rho) on G
+	 *
+	 * \param G_hat The constant Original Graph referenced by G
+	 * \param G A Subgraph of G_hat (can be equal) to construct a Tree on
+	 * \param u The Graph G's rho-center
+	 * \param rho Twice the Graph's assumed Stretch and 2/3 of the radius of the Ball around u to construct a Tree in
+	 * \param delta A DistanceMetric of the original Graph. Contains efficiently sorted APSP.
+	 * \returns EdgeArray containing Edges of constructed Tree
+	 */
 	EdgeArray<bool> constructLocalTree(const Graph& G_hat, GraphCopySimple& G, node u, int rho, const DistanceMetric& delta);
 
 	using TreeSpannerModule::assertTimeLeft;
@@ -85,10 +121,9 @@ protected:
 	using TreeSpannerModule::m_treeSpanner;
 	using TreeSpannerModule::m_inTreeSpanner;
 private:
-	//		Vars for Solution
-	EdgeArray<bool> F; //!< saves the Solution for the current rho.
-	EdgeSet F_alt; //may be better than EdgeArray
-	ConnectivityPartition P;
+
+	EdgeArray<bool> F; //!< EdgeArray that saves the Solution for the current rho 
+	ConnectivityPartition P; //!< Partition of Node-Clusters which represents the Connectivity of the Nodes in F
 };
 
 }

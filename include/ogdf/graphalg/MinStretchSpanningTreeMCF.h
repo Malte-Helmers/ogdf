@@ -50,9 +50,10 @@ public:
 
 
 protected:
-
+	//! @copydoc ogdf::TreeSpannerModule::execute
     TreeSpannerModule::ReturnType execute() ;
 
+	//! @copydoc ogdf::TreeSpannerModule::init
     void init(const GraphAttributes& GA, GraphCopySimple& treeSpanner,
 			EdgeArray<bool>& inTreeSpanner) ;
 };
