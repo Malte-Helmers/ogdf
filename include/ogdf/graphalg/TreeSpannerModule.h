@@ -41,6 +41,7 @@
 #include <ogdf/basic/Module.h>
 #include <ogdf/basic/Stopwatch.h>
 #include <ogdf/basic/basic.h>
+#include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/graphalg/ShortestPathAlgorithms.h>
 
 #include <ogdf/energybased/FMMMLayout.h>
@@ -197,7 +198,11 @@ public:
 		const Graph& G = GA.constGraph();
 		OGDF_ASSERT(&(treeSpanner.original()) == &G);
 
-		if (G.numberOfNodes() != treeSpanner.numberOfNodes() || treeSpanner.numberOfEdges() != G.numberOfNodes() - 1 ) {
+		if (!isTree(treeSpanner)) {
+			return false;
+		}
+
+		if (G.numberOfNodes() != treeSpanner.numberOfNodes()) {
 			return false;
 		}
 
@@ -220,6 +225,23 @@ public:
 			if (m_eps.greater(static_cast<double>(newDistance), static_cast<double>(stretch * originalDistance))) {
 				return false;
 			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Checks if given GraphCopy is a tree
+	 *
+	 * \returns true if the \p GraphCopySimple is a tree
+	 */
+	static bool isTree(const GraphCopySimple& tree) {
+		if (tree.numberOfEdges() != tree.numberOfNodes() - 1 ) {
+			return false;
+		}
+
+		if (!isConnected(tree)) {
+			return false;
 		}
 
 		return true;

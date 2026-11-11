@@ -53,6 +53,7 @@ bool Ball::findRhoCenter(const Graph& G_hat, GraphCopySimple& G, const DistanceM
 
 	centerNodeIsRhoCenter = false;
 
+	/*
 	for (int i = 0; i < G_hat.numberOfNodes() && !centerNodeIsRhoCenter; i++) {
 		node u = delta.nodesByMaxDistance[i]; // sometimes a better stretch can be achieved through another rho-center. maybe it could be worth it to remember and try out other rho-centers as well for the final valid rho.
 		if (G.copy(u) != nullptr) { // maybe optimisable? instead of going through G_hat's nodes and checking which are in G, maybe just going through G is possible, but maybe not in combination with using delta for optimisation.
@@ -64,6 +65,25 @@ bool Ball::findRhoCenter(const Graph& G_hat, GraphCopySimple& G, const DistanceM
 			}
 		}
 	}
+	*/
+	
+
+	// Version going through the nodes by index
+	// todo: add member var enum or bool with get and set functions to determine a certain mode, like:
+	// explicit for logging, simple for a faithful version to the paper, and optimised for my optimistations
+	
+	for (node u : G_hat.nodes) {
+		if (G.copy(u) != nullptr && !centerNodeIsRhoCenter) { // maybe optimisable? instead of going through G_hat's nodes and checking which are in G, maybe just going through G is possible, but maybe not in combination with using delta for optimisation.
+			init(G_hat, G, delta, rho, u);
+
+			if (validRhoCenter(G_hat, G)) {
+				OGDF_ASSERT(centerNode == u);
+				centerNodeIsRhoCenter = true;
+			}
+		}
+	}
+	
+
 
 	return centerNodeIsRhoCenter;
 }
