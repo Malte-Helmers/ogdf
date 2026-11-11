@@ -80,6 +80,10 @@ bool Ball::findRhoCenter(const Graph& G_hat, GraphCopySimple& G, const DistanceM
 				OGDF_ASSERT(centerNode == u);
 				centerNodeIsRhoCenter = true;
 			}
+#ifdef OGDF_DEBUG
+			std::cout << "Is Node " << u << " a Rho-Center? " << centerNodeIsRhoCenter << std::endl;
+			//decomposedGraph.print();
+#endif
 		}
 	}
 	
@@ -121,7 +125,7 @@ bool Ball::validRhoCenter(const Graph& G_hat, GraphCopySimple& G) const {
 
 		int compSize = decomposedGraph.components[i].numberOfNodes();
 		
-		if (compSize > G.numberOfNodes()) {
+		if (compSize > floor(G.numberOfNodes() / 2)) { // idk if it actually needs to be floor, but considering we want log_2(n) recursions, we want the Graph to actually be halved each time.
 			return false;
 		}
 	}

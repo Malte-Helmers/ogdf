@@ -87,7 +87,6 @@ TreeSpannerModule::ReturnType MinStretchSpanningTreeEmekPeleg::execute() {
 
 #ifdef OGDF_DEBUG
 	printEdges(*m_inTreeSpanner,"InTreeSpanner");
-	drawGraph(*m_treeSpanner, "treeSpanner_test");
 
 	GraphAttributes GA_(G_hat);
 	OGDF_ASSERT(validStretch(*m_treeSpanner, *m_inTreeSpanner));
@@ -119,6 +118,7 @@ void MinStretchSpanningTreeEmekPeleg::constructMSST(const Graph& G_hat, EdgeArra
 	P.print();
 
 	DistanceMetric delta = DistanceMetric(G_hat);
+	delta.print();
 
 	GraphCopySimple G; //Editable Copy of G_hat with reference to G_hat
 
@@ -234,7 +234,7 @@ EdgeArray<bool> MinStretchSpanningTreeEmekPeleg::constructLocalTree(const Graph&
 	}
 
 #ifdef OGDF_DEBUG
-	P.print();
+	//P.print();
 	printEdges(T_local,"T_local");
 #endif
 

@@ -71,6 +71,10 @@ void ComponentSet::init(const Graph& G_hat, GraphCopySimple& G, EdgeSet removedE
 		constructInducedSubgraph(G_hat, G, compIndices, components[i], repr[i]);
 	}
 
+	for (edge e : removedEdges) { // to do: optimise. Maybe I don't even need to delete Edges and can just pass the Array/Set into the bfs to check
+		G.newEdge(e);
+	}
+
 }
 
 int ComponentSet::determineComponents(const Graph& G_hat, GraphCopySimple& G, NodeArray<int>& compInd, ArrayBuffer<node>& repr) const {
@@ -149,9 +153,13 @@ void ComponentSet::constructInducedSubgraph(const Graph& G_hat, GraphCopySimple&
 			std::cout << "Node " << v << " is in Component " << compIndices[v] << std::endl;
 		}
 		for (int i = 0; i < components.size(); i++) {
+			std::cout << "Component " << i << " has the following  nodes:" << std::endl;
+			for (node v : components[i].nodes) {
+				std::cout << "node " << components[i].original(v) << std::endl;
+			}
 			std::cout << "Component " << i << " has the following edges:" << std::endl;
 			for (edge e : components[i].edges) {
-				std::cout << "edge " << e->source()->index() << " - " << e->target()->index() << std::endl;
+				std::cout << "edge " << components[i].original(e)->source()->index() << " - " << components[i].original(e)->target()->index() << std::endl;
 			}
 		}
 #endif
