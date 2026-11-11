@@ -124,6 +124,43 @@ private:
 
 	EdgeArray<bool> F; //!< EdgeArray that saves the Solution for the current rho 
 	ConnectivityPartition P; //!< Partition of Node-Clusters which represents the Connectivity of the Nodes in F
+	bool optMode = true;
+	bool logMode = false;
+
+public:
+
+	/**
+	 * Sets whether the Algorithm should print Logs to the terminal (true), or not (false).
+	 *
+	 * \param explicitMode If true, enables Logging, if false, disables Logging
+	 */
+	void setLogMode(bool explicitMode) {
+		logMode = explicitMode;
+	}
+
+	/**
+	 * \returns whether the Algorithm will print Logs to the Terminal (true), or not (false)
+	 */
+	bool getLogMode() {
+		return logMode;
+	}
+
+	/**
+	 * Sets whether the Algorithm should use optimisations beyond what Emek-Peleg suggested in their paper (true), 
+	 * 	or simpler methods more in line with the original paper (false).
+	 *
+	 * \param optimisedMode If true, enables Optimisations, if false, it tries to replicate the Algorithm described by the paper more accurately.
+	 */
+	void setOptMode(bool optimisedMode) {
+		optMode = optimisedMode;
+	}
+
+	/**
+	 * \returns whether the Algorithm will use optimisations (true), or not (false)
+	 */
+	bool getOptMode() {
+		return optMode;
+	}
 };
 
 }

@@ -87,6 +87,10 @@ int main(int argc, char *argv[]) { //Input: .gml of Graph.
 	GraphCopySimple SolutionTree;
 	EdgeArray<bool> Solution;
 	MinStretchSpanningTreeEmekPeleg TS_EP = MinStretchSpanningTreeEmekPeleg();
+
+	TS_EP.setOptMode(true);
+	TS_EP.setLogMode(true);
+
 	TS_EP.call(GA, SolutionTree, Solution);
 	// End of Testing Emek-Peleg's Algorithm
 
